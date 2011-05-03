@@ -1,3 +1,5 @@
+using System;
+
 namespace DotNetKillboard.Events
 {
     /// <summary>
@@ -14,5 +16,10 @@ namespace DotNetKillboard.Events
         /// Should this event be handled in an Asynchroneous fashion
         /// </summary>
         bool Async { get; }
+
+        /// <summary>
+        /// Aggregate root id
+        /// </summary>
+        Guid Id { get; }        
     }
 }

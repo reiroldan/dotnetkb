@@ -1,11 +1,30 @@
-﻿namespace DotNetKillboard.Domain
+﻿using System;
+using DotNetKillboard.Events;
+
+namespace DotNetKillboard.Domain
 {
-    public class Alliance
+    public class Alliance : AggregateRoot
     {
-        public int Id { get; set; }
+        private int _externalId;
+        private string _name;
+        private DateTime _timestamp;
 
-        public string Name { get; set; }
+        public Alliance() { }
 
-        public int ExternalId { get; set; }        
+        public Alliance(Guid id, string name, int externalId) {
+            ApplyChange(new AllianceCreated(id, name, externalId, SystemDateTime.Now()));
+        }
+
+        #region Event Handlers
+
+        protected void OnAllianceCreated(AllianceCreated e) {
+            Id = e.Id;
+            _externalId = e.ExternalId;
+            _name = e.Name;
+            _timestamp = e.Timestamp;
+        }
+
+        #endregion
+
     }
 }

@@ -13,6 +13,7 @@ namespace Tests
     public class InMemoryBusTest
     {
 
+        private TestResolver _resolver;
         private IBus _bus;
         private IEventStore _eventStore;
         private IDomainRepository _domainRepository;
@@ -20,35 +21,28 @@ namespace Tests
 
         [SetUp]
         public void Setup() {
-            _bus = new InMemoryBus();
+            _resolver = new TestResolver();
+            _bus = new InMemoryBus(_resolver);
             _eventStore = new MongoEventStore(_bus, "server=localhost", "TestEventStore");
             _domainRepository = new DomainRepositoryImpl(_eventStore);
             _reportingRepository = new MongoReportingRepository("server=localhost", "TestReporting");
+
+            _resolver.Register(typeof(IDomainRepository), _domainRepository);
+            _resolver.Register(typeof(IReportingRepository), _reportingRepository);
         }
 
         [Test]
         public void Test() {
             var id = Guid.NewGuid();
-            _bus.Register<TestCreateEntity>(HandleCreateCommand);
-            _bus.Register<TestChangeEntityName>(HandleChangeName);
 
-            var handler = new TestEntityHandlers(_reportingRepository);
-            _bus.Register<TestEntityCreatedEvent>(handler.Handle);
-            _bus.Register<TestEntityNameChangedEvent>(handler.Handle);
+            _bus.RegisterCommand<TestCreateEntity, TestEntityCommandHandlers>();
+            _bus.RegisterCommand<TestChangeEntityName, TestEntityCommandHandlers>();
+
+            _bus.RegisterEvent<TestEntityCreatedEvent, TestEntityEventHandlers>();
+            _bus.RegisterEvent<TestEntityNameChangedEvent, TestEntityEventHandlers>();
 
             _bus.Send(new TestCreateEntity(id, "EntityCreated"));
             _bus.Send(new TestChangeEntityName(id, "Name Changed"));
-        }
-
-        private void HandleChangeName(TestChangeEntityName cmd) {
-            var item = _domainRepository.GetById<TestEntity>(cmd.Id);
-            item.ChangeName(cmd.NewName);
-            _domainRepository.Save(item);
-        }
-
-        private void HandleCreateCommand(TestCreateEntity cmd) {
-            var item = new TestEntity(cmd.Id, cmd.Name);
-            _domainRepository.Save(item);
         }
 
         #region Domain
@@ -63,8 +57,12 @@ namespace Tests
                 ApplyChange(new TestEntityCreatedEvent(id, name));
             }
 
-            protected void Apply(TestEntityCreatedEvent @event) {
+            protected void OnTestEntityCreatedEvent(TestEntityCreatedEvent @event) {
                 Id = @event.Id;
+                _name = @event.Name;
+            }
+
+            protected void OnTestEntityNameChangedEvent(TestEntityNameChangedEvent @event) {
                 _name = @event.Name;
             }
 
@@ -103,11 +101,10 @@ namespace Tests
 
         class TestEntityCreatedEvent : EventBase
         {
-            public Guid Id { get; set; }
-
             public string Name { get; set; }
 
-            public TestEntityCreatedEvent(Guid id, string name) {
+            public TestEntityCreatedEvent(Guid id, string name)
+                : base(id) {
                 Id = id;
                 Name = name;
             }
@@ -115,11 +112,10 @@ namespace Tests
 
         class TestEntityNameChangedEvent : EventBase
         {
-            public Guid Id { get; set; }
-
             public string Name { get; set; }
 
-            public TestEntityNameChangedEvent(Guid id, string name) {
+            public TestEntityNameChangedEvent(Guid id, string name)
+                : base(id) {
                 Id = id;
                 Name = name;
             }
@@ -127,13 +123,37 @@ namespace Tests
 
         #endregion
 
+        #region Command Handlers
+
+        class TestEntityCommandHandlers : ICommandHandler<TestCreateEntity>, ICommandHandler<TestChangeEntityName>
+        {
+            private readonly IDomainRepository _domainRepository;
+
+            public TestEntityCommandHandlers(IDomainRepository domainRepository) {
+                _domainRepository = domainRepository;
+            }
+
+            public void Handle(TestCreateEntity command) {
+                var item = new TestEntity(command.Id, command.Name);
+                _domainRepository.Save(item);
+            }
+
+            public void Handle(TestChangeEntityName command) {
+                var item = _domainRepository.GetById<TestEntity>(command.Id);
+                item.ChangeName(command.NewName);
+                _domainRepository.Save(item);
+            }
+        }
+
+        #endregion
+
         #region Event Handlers
 
-        class TestEntityHandlers : IEventHandler<TestEntityCreatedEvent>, IEventHandler<TestEntityNameChangedEvent>
+        class TestEntityEventHandlers : IEventHandler<TestEntityCreatedEvent>, IEventHandler<TestEntityNameChangedEvent>
         {
             private readonly IReportingRepository _repository;
 
-            public TestEntityHandlers(IReportingRepository repository) {
+            public TestEntityEventHandlers(IReportingRepository repository) {
                 _repository = repository;
             }
 

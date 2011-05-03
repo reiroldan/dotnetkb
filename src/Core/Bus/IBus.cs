@@ -30,5 +30,10 @@ namespace DotNetKillboard.Bus
         /// <typeparam name="T"></typeparam>
         /// <param name="handler"></param>
         void Register<T>(Action<T> handler) where T : IMessage;
+
+        void RegisterEvent<TEvent, TEventHandler>() where TEvent : IEvent where TEventHandler : IEventHandler<TEvent>;
+        
+        void RegisterCommand<TCommand, TCommandHandler>() where TCommand : ICommand where TCommandHandler : ICommandHandler<TCommand>;
     }
+    
 }

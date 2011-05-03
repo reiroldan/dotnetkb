@@ -1,4 +1,6 @@
-﻿namespace DotNetKillboard.Events
+﻿using System;
+
+namespace DotNetKillboard.Events
 {
 
     /// <summary>
@@ -8,8 +10,12 @@
     {
         public int Version { get; set; }
 
-        public bool Async {
-            get { return true; }
+        public bool Async { get { return true; } }
+
+        public Guid Id { get; protected set; }
+
+        public AsyncEventBase(Guid id) {
+            Id = id;
         }
     }
 }

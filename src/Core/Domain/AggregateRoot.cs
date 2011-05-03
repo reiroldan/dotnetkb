@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using DotNetKillboard.Events;
-using DotNetKillboard.Utils;
 
 namespace DotNetKillboard.Domain
 {
@@ -43,15 +43,32 @@ namespace DotNetKillboard.Domain
         }
 
         /// <summary>
-        /// Apply a single event
+        /// Apply the event
         /// </summary>
         /// <param name="event"></param>
-        /// <param name="isNew">If the event is new, it will be added to the pending changes list</param>
+        /// <param name="isNew"></param>
         public void ApplyChange(IEvent @event, bool isNew = true) {
-            this.AsDynamic().Apply(@event);
+            var targetType = GetType();
+            var methodsToMatch = targetType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-            if (isNew)
-                _changes.Add(@event);
+            foreach (var method in methodsToMatch) {
+                var expectedName = string.Format("on{0}", @event.GetType().Name);
+
+                if (string.Compare(method.Name, expectedName, StringComparison.OrdinalIgnoreCase) != 0)
+                    continue;
+
+                var parameters = method.GetParameters();
+
+                if (parameters.Length != 1 || !typeof(IEvent).IsAssignableFrom(parameters[0].ParameterType))
+                    continue;
+
+                method.Invoke(this, new[] { @event });
+
+                if (isNew)
+                    _changes.Add(@event);
+
+                return;
+            }
         }
     }
 }

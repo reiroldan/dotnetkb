@@ -39,13 +39,20 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultKillParserTest.cs" />
     <Compile Include="InMemoryBusTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestResolver.cs" />
+    <Compile Include="TinyIOC.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{3A7EA378-05CE-4071-A411-D98EC6DD211C}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Domain\Domain.csproj">
+      <Project>{BB163463-5707-4EE0-8807-A0FBA1A77AC1}</Project>
+      <Name>Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoData\MongoData.csproj">
       <Project>{15C4A50D-A367-43B4-97B0-CC764C55167F}</Project>

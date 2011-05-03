@@ -36,16 +36,29 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandlers\AllianceCommandHandlers.cs" />
+    <Compile Include="CommandHandlers\CorporationCommandHandlers.cs" />
+    <Compile Include="CommandHandlers\PilotCommandHandlers.cs" />
+    <Compile Include="Commands\AllianceCommands.cs" />
+    <Compile Include="Commands\CorporationCommands.cs" />
+    <Compile Include="Commands\KillCommands.cs" />
+    <Compile Include="Commands\PilotCommands.cs" />
     <Compile Include="Domain\Alliance.cs" />
     <Compile Include="Domain\Corporation.cs" />
+    <Compile Include="Domain\Kill.cs" />
     <Compile Include="Domain\Pilot.cs" />
+    <Compile Include="EventHandlers\AllianceEventHandlers.cs" />
+    <Compile Include="EventHandlers\PilotEventHandlers.cs" />
+    <Compile Include="Events\AllianceEvents.cs" />
+    <Compile Include="Events\CorporatioEvents.cs" />
+    <Compile Include="Events\PilotEvents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reporting\AllianceDtos.cs" />
+    <Compile Include="Reporting\PilotDtos.cs" />
+    <Compile Include="Services\DefaultKillMailParser.cs" />
+    <Compile Include="Services\IKillParser.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\" />
-    <Folder Include="Events\" />
-    <Folder Include="Reporting\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{3A7EA378-05CE-4071-A411-D98EC6DD211C}</Project>
