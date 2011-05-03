@@ -41,7 +41,6 @@
   <ItemGroup>
     <Compile Include="DefaultKillParserTest.cs" />
     <Compile Include="InMemoryBusTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestResolver.cs" />
     <Compile Include="TinyIOC.cs" />
   </ItemGroup>
@@ -58,6 +57,9 @@
       <Project>{15C4A50D-A367-43B4-97B0-CC764C55167F}</Project>
       <Name>MongoData</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
