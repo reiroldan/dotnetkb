@@ -12,143 +12,97 @@ namespace Tests
 
         public const string Kill = @"2011.05.03 14:45
 
-Victim: eryyxx 2
-Corp: Rubbish and Garbage Removal
-Alliance: Bang Bang You're Dead
+Victim: The Victim
+Corp: Victim Corporation
+Alliance: Victim Alliance
 Faction: NONE
 Destroyed: Drake
-System: RPS-0K
+System: Victim System
 Security: 0.0
 Damage Taken: 28178
 
 Involved parties:
 
-Name: Thunder ebon
+Name: Involved Party 1
 Security: 3.8
-Corp: Thunder Mercenary Army
+Corp: Invovled Corp 1
 Alliance: None
 Faction: NONE
 Ship: Vagabond
 Weapon: Vagabond
 Damage Done: 8660
 
-Name: No 002
+Name: Involved Party 2
 Security: 5.0
-Corp: Thunder Mercenary Army
+Corp: Invovled Corp 2
 Alliance: None
 Faction: NONE
 Ship: Hurricane
 Weapon: Hurricane
 Damage Done: 2845
 
-Name: kanathor
+Name: Involved Party 3
 Security: 2.6
-Corp: Thunder Mercenary Army
+Corp: Involved Corp 3
 Alliance: None
 Faction: NONE
 Ship: Sleipnir
 Weapon: Sleipnir
 Damage Done: 2793
 
-Name: Thunder knife
+Name: Involved Party 4
 Security: 5.0
-Corp: Thunder Mercenary Army
+Corp: Involved Corp 4
 Alliance: None
 Faction: NONE
 Ship: Vagabond
 Weapon: Vagabond
 Damage Done: 2519
 
-Name: Thunder andy
+Name: Involved Party 5
 Security: 4.7
-Corp: Thunder Mercenary Army
+Corp: Involved Corp 5
 Alliance: None
 Faction: NONE
 Ship: Capsule
 Weapon: Gremlin Rage Rocket
 Damage Done: 2062
 
-Name: Peninsula Media
+Name: Involved Party 6
 Security: 4.6
-Corp: Thunder Mercenary Army
+Corp: Involved Corp 6
 Alliance: None
 Faction: NONE
 Ship: Drake
 Weapon: Terror Rage Assault Missile
 Damage Done: 1768
 
-Name: Lonely Devil
+Name: Involved Party 7
 Security: 5.0
-Corp: Thunder Mercenary Army
+Corp: Involved Corp 7
 Alliance: None
 Faction: NONE
 Ship: Drake
 Weapon: Scourge Fury Heavy Missile
 Damage Done: 1582
 
-Name: Zektyn
-Security: 3.6
-Corp: Thunder Mercenary Army
-Alliance: None
-Faction: NONE
-Ship: Hurricane
-Weapon: Hurricane
-Damage Done: 1403
-
-Name: LIZARD MK
+Name: Involved Party 8
 Security: 5.0
-Corp: Thunder Mercenary Army
-Alliance: None
-Faction: NONE
-Ship: Manticore
-Weapon: 'Arbalest' Siege Missile Launcher
-Damage Done: 1384
-
-Name: Damien Deaf
-Security: 5.0
-Corp: Thunder Mercenary Army
-Alliance: None
-Faction: NONE
-Ship: Vagabond
-Weapon: Vagabond
-Damage Done: 1196
-
-Name: Lincoln Chang
-Security: 5.0
-Corp: Black Thorne Corporation
-Alliance: Black Thorne Alliance
+Corp: Involved Corp 8
+Alliance: Involved Alliance 8
 Faction: NONE
 Ship: Drake
 Weapon: Thunderbolt Heavy Missile
 Damage Done: 944
 
-Name: FlyingBee (laid the final blow)
+Name: Involved Party 9 Final Blow (laid the final blow)
 Security: 0.8
-Corp: Thunder Mercenary Army
+Corp: Involved Corp 9
 Alliance: None
 Faction: NONE
 Ship: Hurricane
 Weapon: 425mm AutoCannon II
 Damage Done: 858
-
-Name: cpt hongkai
-Security: 5.0
-Corp: Thunder Mercenary Army
-Alliance: None
-Faction: NONE
-Ship: Sabre
-Weapon: Sabre
-Damage Done: 164
-
-Name: Thunder sop
-Security: 0.9
-Corp: Thunder Mercenary Army
-Alliance: None
-Faction: NONE
-Ship: Curse
-Weapon: Medium Energy Neutralizer II
-Damage Done: 0
-
 
 Destroyed items:
 
