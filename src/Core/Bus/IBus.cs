@@ -29,6 +29,6 @@ namespace DotNetKillboard.Bus
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="handler"></param>
-        void RegisterHandler<T>(Action<T> handler) where T : IMessage;
+        void Register<T>(Action<T> handler) where T : IMessage;
     }
 }

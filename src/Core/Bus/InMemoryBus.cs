@@ -16,7 +16,7 @@ namespace DotNetKillboard.Bus
 
         private readonly Dictionary<Type, List<Action<IMessage>>> _routes = new Dictionary<Type, List<Action<IMessage>>>();
 
-        public void RegisterHandler<T>(Action<T> handler) where T : IMessage {
+        public void Register<T>(Action<T> handler) where T : IMessage {
             List<Action<IMessage>> handlers;
 
             if (!_routes.TryGetValue(typeof(T), out handlers)) {

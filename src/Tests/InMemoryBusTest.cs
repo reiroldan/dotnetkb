@@ -29,12 +29,12 @@ namespace Tests
         [Test]
         public void Test() {
             var id = Guid.NewGuid();
-            _bus.RegisterHandler<TestCreateEntity>(HandleCreateCommand);
-            _bus.RegisterHandler<TestChangeEntityName>(HandleChangeName);
+            _bus.Register<TestCreateEntity>(HandleCreateCommand);
+            _bus.Register<TestChangeEntityName>(HandleChangeName);
 
             var handler = new TestEntityHandlers(_reportingRepository);
-            _bus.RegisterHandler<TestEntityCreatedEvent>(handler.Handle);
-            _bus.RegisterHandler<TestEntityNameChangedEvent>(handler.Handle);
+            _bus.Register<TestEntityCreatedEvent>(handler.Handle);
+            _bus.Register<TestEntityNameChangedEvent>(handler.Handle);
 
             _bus.Send(new TestCreateEntity(id, "EntityCreated"));
             _bus.Send(new TestChangeEntityName(id, "Name Changed"));

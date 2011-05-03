@@ -45,7 +45,6 @@
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandHandler.cs" />
-    <Compile Include="EnvironmentConfiguration.cs" />
     <Compile Include="Domain\AggregateRoot.cs" />
     <Compile Include="Events\AggregateNotFoundException.cs" />
     <Compile Include="Events\AsyncEventBase.cs" />
