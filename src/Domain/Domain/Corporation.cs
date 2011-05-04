@@ -5,21 +5,23 @@ namespace DotNetKillboard.Domain
 {
     public class Corporation : AggregateRoot
     {
+        private int _sequence;
         private int _allianceId;
         private int _externalId;
         private string _name;
         private DateTime _timestamp;
-
+        
         public Corporation() { }
 
-        public Corporation(Guid id, string name, int allianceId, int externalId) {
-            ApplyChange(new CorporatioCreated(id, name, allianceId, externalId, SystemDateTime.Now()));
+        public Corporation(Guid id, int sequence, string name, int allianceId, int externalId) {
+            ApplyChange(new CorporatioCreated(id, sequence, name, allianceId, externalId, SystemDateTime.Now()));
         }
 
         #region Event Handlers
 
         protected void OnCorporatioCreated(CorporatioCreated e) {
             Id = e.Id;
+            _sequence = e.Sequence;
             _allianceId = e.AllianceId;
             _externalId = e.ExternalId;
             _name = e.Name;

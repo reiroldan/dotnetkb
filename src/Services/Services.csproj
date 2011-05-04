@@ -39,10 +39,13 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IEntitiesService.cs" />
     <Compile Include="IKillParser.cs" />
     <Compile Include="IKillService.cs" />
+    <Compile Include="Implementation\EntitesServiceImpl.cs" />
     <Compile Include="Implementation\KillServiceImpl.cs" />
     <Compile Include="Implementation\TextKillMailParser.cs" />
+    <Compile Include="KillMailException.cs" />
     <Compile Include="Model\ParsedInvolvedParty.cs" />
     <Compile Include="Model\ParsedKillHeader.cs" />
     <Compile Include="Model\ParsedKillItem.cs" />

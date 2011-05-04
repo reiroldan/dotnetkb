@@ -13,5 +13,7 @@ namespace DotNetKillboard.ReportingModel
         public string Name { get; set; }
 
         public DateTime Timestamp { get; set; }
+
+        public int Sequence { get; set; }
     }
 }

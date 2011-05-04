@@ -4,6 +4,8 @@ namespace DotNetKillboard.Events
 {
     public class CorporatioCreated : EventBase
     {
+        public int Sequence { get; set; }
+
         public string Name { get; set; }
 
         public int AllianceId { get; set; }
@@ -16,8 +18,9 @@ namespace DotNetKillboard.Events
             : base(id) {
         }
 
-        public CorporatioCreated(Guid id, string name, int allianceId, int externalId, DateTime timestamp)
+        public CorporatioCreated(Guid id, int sequence, string name, int allianceId, int externalId, DateTime timestamp)
             : base(id) {
+            Sequence = sequence;
             Name = name;
             AllianceId = allianceId;
             ExternalId = externalId;
@@ -31,7 +34,8 @@ namespace DotNetKillboard.Events
 
         public DateTime Timestamp { get; set; }
 
-        public CorporationAllianceChanged(Guid id, int allianceId, DateTime timestamp) : base(id) {
+        public CorporationAllianceChanged(Guid id, int allianceId, DateTime timestamp)
+            : base(id) {
             AllianceId = allianceId;
             Timestamp = timestamp;
         }

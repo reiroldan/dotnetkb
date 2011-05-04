@@ -15,5 +15,14 @@ namespace DotNetKillboard.Data.Queries
             collectionName = collectionName ?? CollectionNamesFactory.GetCollectionNameFromType<T>();
             return Database.GetCollection<T>(collectionName);
         }
+
+        protected MongoCollection GetCollection<T>(string collectionName = null) {
+            collectionName = collectionName ?? CollectionNamesFactory.GetCollectionNameFromType<T>();
+            return Database.GetCollection(collectionName);
+        }
+
+        protected string CollectioName<T>() {
+            return CollectionNamesFactory.GetCollectionNameFromType<T>();
+        }
     }
 }

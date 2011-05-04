@@ -14,7 +14,7 @@ namespace DotNetKillboard.CommandHandlers
         }
 
         public void Handle(CreateCorporation command) {
-            var item = new Corporation(command.Id, command.Name, command.AllianceId, command.ExternalId);
+            var item = new Corporation(command.Id, command.Sequence, command.Name, command.AllianceId, command.ExternalId);
             _repository.Save(item);
         }
 

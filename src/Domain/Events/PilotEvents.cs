@@ -24,17 +24,14 @@ namespace DotNetKillboard.Events
         }
     }
 
-    public class PilotAllianceCorporationChanged : AsyncEventBase
+    public class PilotCorporationChanged : AsyncEventBase
     {
-        public int AllianceId { get; set; }
-
         public int CorporationId { get; set; }
 
         public DateTime Timestamp { get; set; }
 
-        public PilotAllianceCorporationChanged(Guid id, int allianceId, int corporationId, DateTime timestamp)
+        public PilotCorporationChanged(Guid id, int corporationId, DateTime timestamp)
             : base(id) {
-            AllianceId = allianceId;
             CorporationId = corporationId;
             Timestamp = timestamp;
         }

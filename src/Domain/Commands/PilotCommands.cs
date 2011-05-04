@@ -4,39 +4,33 @@ namespace DotNetKillboard.Commands
 {
     public class CreatePilot : CommandBase
     {
+        public int Sequence { get; set; }
+
         public string Name { get; set; }
 
         public int CorporationId { get; set; }
-
-        public DateTime Timestamp { get; set; }
 
         public int ExternalId { get; set; }
 
         public int AllianceId { get; set; }
 
-        public CreatePilot(Guid id, string name, int allianceId, int corporationId, DateTime timestamp, int externalId)
+        public CreatePilot(Guid id, int sequence, string name, int allianceId, int corporationId, int externalId)
             : base(id) {
+            Sequence = sequence;
             Name = name;
             AllianceId = allianceId;
             CorporationId = corporationId;
-            Timestamp = timestamp;
             ExternalId = externalId;
         }
     }
 
-    public class ChangePilotsAllianceAndCorporation : CommandBase
+    public class ChangePilotsCorporation : CommandBase
     {
-        public int AllianceId { get; set; }
-
         public int CorporationId { get; set; }
 
-        public DateTime Timestamp { get; set; }
-
-        public ChangePilotsAllianceAndCorporation(Guid id, int allianceId, int corporationId, DateTime timestamp)
+        public ChangePilotsCorporation(Guid id, int corporationId)
             : base(id) {
-            AllianceId = allianceId;
-            CorporationId = corporationId;
-            Timestamp = timestamp;
+            CorporationId = corporationId;        
         }
     }
 }

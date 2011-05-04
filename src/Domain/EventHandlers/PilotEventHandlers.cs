@@ -4,7 +4,7 @@ using DotNetKillboard.ReportingModel;
 
 namespace DotNetKillboard.EventHandlers
 {
-    public class PilotEventHandlers : IEventHandler<PilotCreated>, IEventHandler<PilotAllianceCorporationChanged>
+    public class PilotEventHandlers : IEventHandler<PilotCreated>, IEventHandler<PilotCorporationChanged>
     {
         private readonly IReportingRepository _repository;
 
@@ -25,9 +25,8 @@ namespace DotNetKillboard.EventHandlers
             _repository.Save(dto);
         }
 
-        public void Handle(PilotAllianceCorporationChanged @event) {
+        public void Handle(PilotCorporationChanged @event) {
             var dto = _repository.Get<PilotDto>(@event.Id);
-            dto.AllianceId = @event.AllianceId;
             dto.CorporationId = @event.CorporationId;
             dto.Timestamp = @event.Timestamp;
 

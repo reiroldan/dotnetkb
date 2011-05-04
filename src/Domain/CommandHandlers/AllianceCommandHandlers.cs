@@ -13,7 +13,7 @@ namespace DotNetKillboard.CommandHandlers
         }
 
         public void Handle(CreateAlliance command) {
-            var item = new Alliance(command.Id, command.Name, command.ExternalId);
+            var item = new Alliance(command.Id, command.Sequence, command.Name, command.ExternalId);
             _repository.Save(item);
         }
     }

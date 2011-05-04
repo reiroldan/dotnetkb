@@ -28,7 +28,7 @@ namespace DotNetKillboard.Domain
             _timestamp = e.Timestamp;
         }
 
-        protected void OnPilotAllianceCorporationChanged(PilotAllianceCorporationChanged e) {
+        protected void OnPilotAllianceCorporationChanged(PilotCorporationChanged e) {
             _corporationId = e.CorporationId;
             _timestamp = e.Timestamp;
         }
@@ -37,8 +37,8 @@ namespace DotNetKillboard.Domain
 
         #region Public Implementation
 
-        public void ChangeAllianceAndCorporation(int allianceId, int corporationId) {
-            ApplyChange(new PilotAllianceCorporationChanged(Id, allianceId, corporationId, SystemDateTime.Now()));
+        public void ChangeCorporation(int corporationId) {
+            ApplyChange(new PilotCorporationChanged(Id, corporationId, SystemDateTime.Now()));
         }
 
         #endregion

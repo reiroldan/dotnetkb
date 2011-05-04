@@ -57,6 +57,15 @@ namespace DotNetKillboard.Data
             return filter;
         }
 
+        public int GetNextSequenceFor<T>() {
+            var collection = GetDb()["NumericSequences"];
+            var seqName = CollectionNamesFactory.GetCollectionNameFromType<T>();
+            var query = Query.EQ("_id", seqName);
+            collection.Update(query, new UpdateBuilder().Inc("next", 1), UpdateFlags.Upsert);
+            var result = collection.FindOne(query)["next"];
+            return result.AsInt32;            
+        }
+
         #region Internals
 
         private MongoDatabase GetDb() {

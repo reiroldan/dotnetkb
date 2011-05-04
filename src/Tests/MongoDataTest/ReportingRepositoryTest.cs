@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using DotNetKillboard.Data;
 using DotNetKillboard.Data.Queries;
@@ -15,11 +16,24 @@ namespace Tests.MongoDataTest
         private const string ConnectionString = "server=localhost";
         private const string DataBase = "ReportingRepositoryTest";
         private MongoServer _server;
+        private TestResolver _resolver;
+
+        #region Setup/Teardown
 
         [SetUp]
         public void Setup() {
             _server = MongoServer.Create(ConnectionString);
+            _server.DropDatabase(DataBase);
+            _resolver = new TestResolver();
         }
+
+        [TearDown]
+        private void CleanUp() {
+            _server.DropDatabase(DataBase);
+            _server.Disconnect();
+        }
+
+        #endregion
 
         [Test]
         public void SingleQueryTest() {
@@ -41,9 +55,8 @@ namespace Tests.MongoDataTest
 
             Save(dto);
 
-            var resolver = new TestResolver();
-            resolver.Container.Register<IItemByNameQuery, ItemByNameQuery>();
-            var mr = new MongoReportingRepository(resolver, ConnectionString, DataBase);
+            _resolver.Container.Register<IItemByNameQuery, ItemByNameQuery>();
+            var mr = new MongoReportingRepository(_resolver, ConnectionString, DataBase);
             var result = mr.QueryFor<IItemByNameQuery>(q => q.Name = dto.Name).Execute();
 
             Assert.AreEqual(result.Name, dto.Name);
@@ -89,9 +102,8 @@ namespace Tests.MongoDataTest
 
             Save(dto2);
 
-            var resolver = new TestResolver();
-            resolver.Container.Register<IItemsWithNamesQuery, ItemsWithNamesQuery>();
-            var mr = new MongoReportingRepository(resolver, ConnectionString, DataBase);
+            _resolver.Container.Register<IItemsWithNamesQuery, ItemsWithNamesQuery>();
+            var mr = new MongoReportingRepository(_resolver, ConnectionString, DataBase);
             var result = mr.QueryFor<IItemsWithNamesQuery>(q => q.Names = new[] { dto1.Name, dto2.Name }).Execute();
 
             Assert.AreEqual(result.Count(), 2);
@@ -99,10 +111,26 @@ namespace Tests.MongoDataTest
             result.Dump();
         }
 
-        [TearDown]
-        private void CleanUp() {
-            _server.DropDatabase(DataBase);
-            _server.Disconnect();
+        [Test]
+        public void SequenceTest() {
+            var mr = new MongoReportingRepository(_resolver, ConnectionString, DataBase);
+            var result = mr.GetNextSequenceFor<ReportingRepositoryTest>();
+            Assert.AreEqual(1, result);
+            result = mr.GetNextSequenceFor<ReportingRepositoryTest>();
+            Assert.AreEqual(2, result);
+        }
+
+        [Test]
+        public void PilotsInCorporationQueryTest() {
+            Save(new PilotDto { Id = Guid.NewGuid(), CorporationId = 1 });
+            Save(new PilotDto { Id = Guid.NewGuid(), CorporationId = 2 });
+            Save(new PilotDto { Id = Guid.NewGuid(), CorporationId = 1 });
+
+            _resolver.Container.Register<IPilotsInCorporationQuery, PilotsInCorporationQuery>();
+            var mr = new MongoReportingRepository(_resolver, ConnectionString, DataBase);
+            var result = mr.QueryFor<IPilotsInCorporationQuery>(q => q.Sequence = 1).Execute();
+
+            Assert.AreEqual(2, result.Count());
         }
 
         #region Helpers

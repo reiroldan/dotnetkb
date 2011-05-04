@@ -5,7 +5,7 @@ using DotNetKillboard.Events;
 namespace DotNetKillboard.CommandHandlers
 {
 
-    public class PilotCommandHandlers : ICommandHandler<CreatePilot>, ICommandHandler<ChangePilotsAllianceAndCorporation>
+    public class PilotCommandHandlers : ICommandHandler<CreatePilot>, ICommandHandler<ChangePilotsCorporation>
     {
         private readonly IDomainRepository _domainRepository;
 
@@ -18,9 +18,9 @@ namespace DotNetKillboard.CommandHandlers
             _domainRepository.Save(item);
         }
 
-        public void Handle(ChangePilotsAllianceAndCorporation command) {
+        public void Handle(ChangePilotsCorporation command) {
             var item = _domainRepository.GetById<Pilot>(command.Id);
-            item.ChangeAllianceAndCorporation(command.AllianceId, command.CorporationId);
+            item.ChangeCorporation(command.CorporationId);
             _domainRepository.Save(item);
         }
     }
