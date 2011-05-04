@@ -63,14 +63,8 @@
     <Compile Include="ReportingQueries\InventoryQueries.cs" />
     <Compile Include="ReportingQueries\KillQueries.cs" />
     <Compile Include="ReportingQueries\PilotQueries.cs" />
-    <Compile Include="Services\IKillService.cs" />
-    <Compile Include="Services\Impl\KillServiceImpl.cs" />
-    <Compile Include="Services\Impl\TextKillMailParser.cs" />
-    <Compile Include="Services\IKillParser.cs" />
-    <Compile Include="Services\Model\ParsedKillHeader.cs" />
-    <Compile Include="Services\Model\ParsedInvolvedParty.cs" />
-    <Compile Include="Services\Model\ParsedKillItem.cs" />
-    <Compile Include="Services\Model\ParsedKillResult.cs" />
+    <Compile Include="Services\KillServiceImpl.cs" />
+    <Compile Include="Services\TextKillMailParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
