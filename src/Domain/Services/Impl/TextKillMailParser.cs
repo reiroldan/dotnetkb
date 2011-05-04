@@ -1,138 +1,51 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace DotNetKillboard.Services
+namespace DotNetKillboard.Services.Impl
 {
-
-    public class KillHeader
-    {
-        public DateTime? Timestamp { get; set; }
-
-        public string VictimName { get; set; }
-
-        public string CorporationName { get; set; }
-
-        public string AllianceName { get; set; }
-
-        public string FactionName { get; set; }
-
-        public string ShipName { get; set; }
-
-        public string MoonName { get; set; }
-
-        public string SystemName { get; set; }
-
-        public decimal SystemSecurity { get; set; }
-
-        public decimal DamageTaken { get; set; }
-    }
-
-    public class KillInvolvedParty
-    {
-        public string PilotName { get; set; }
-
-        public string CorporationName { get; set; }
-
-        public string AllianceName { get; set; }
-
-        public decimal SecurityStatus { get; set; }
-
-        public string ShipName { get; set; }
-
-        public string WeaponName { get; set; }
-
-        public decimal DamageDone { get; set; }
-
-        public bool FinalBlow { get; set; }
-
-        public string FactionName { get; set; }
-    }
-
-    public class KillDestroyedItem
-    {
-        public string Name { get; set; }
-
-        public string Location { get; set; }
-
-        public int Quantity { get; set; }
-    }
-
-    public class KillParseResult
-    {
-        private readonly List<KillInvolvedParty> _involvedParties;
-        private readonly List<KillDestroyedItem> _destroyedItems;
-
-        public KillHeader Header { get; set; }
-
-        public bool Authorized { get; set; }
-
-        public IEnumerable<KillInvolvedParty> InvolvedParties {
-            get { return _involvedParties; }
-        }
-
-        public IEnumerable<KillDestroyedItem> DestroyedItems {
-            get { return _destroyedItems; }
-        }
-
-        public KillParseResult() {
-            Header = new KillHeader();
-            _involvedParties = new List<KillInvolvedParty>();
-            _destroyedItems = new List<KillDestroyedItem>();
-        }
-
-        public void AddInvolvedParty(KillInvolvedParty party) {
-            _involvedParties.Add(party);
-        }
-
-        public void AddDestroyedItem(KillDestroyedItem destroyedItem) {
-            _destroyedItems.Add(destroyedItem);
-        }
-    }
-
-    public class DefaultKillMailParser : IKillMailParser
+    public class TextKillMailParser : IKillMailParser
     {
 
-        private const string _unkown = "Unkown";
-        private const string _none = "None";
         private string _killmail;
 
-        public KillParseResult Result { get; set; }
-
-        public List<string> ParseErrors { get; private set; }
-
-        public DefaultKillMailParser() {
+        public TextKillMailParser() {
             ParseErrors = new List<string>();
-            Result = new KillParseResult();
+            Result = new ParsedKillResult();
         }
 
-        public void Parse(string killmail, bool checkAuthorization = true) {
+        public bool Parse(string killmail) {
             _killmail = killmail.Replace("\r", "").Trim();
+            PerformSubstitutions();
 
-            ParseHeader();
-            ParseFactionWarfare();
-            CleanUpHeaders();
+            var headResult = ParseHeader();
 
-            if (!Result.Header.Timestamp.HasValue || Result.Header.FactionName.IsNullOrEmpty() || Result.Header.AllianceName.IsNullOrEmpty()
-                || Result.Header.CorporationName.IsNullOrEmpty() || Result.Header.VictimName.IsNullOrEmpty() || Result.Header.ShipName.IsNullOrEmpty()
-                || Result.Header.SystemName.IsNullOrEmpty()) {
-                return;
+            if (!headResult) {
+                return false;
             }
 
             ParseInvolvedParties();
             ParseDestroyedItems();
-
-            Result.Authorized = !checkAuthorization;
+            ParseDroppedItems();
+            return true;
         }
 
-        private void ParseHeader() {
-            // header section
+        public ParsedKillResult Result { get; set; }
+
+        public List<string> ParseErrors { get; private set; }
+
+        private void PerformSubstitutions() {
+            _killmail = _killmail
+                .Replace("NONE", Constants.None)
+                .Replace("UNKWON", Constants.Unkown);
+        }
+
+        private bool ParseHeader() {
             var involvedpos = _killmail.IndexOf("Involved parties:");
 
             if (involvedpos == -1) {
                 AddError("Mail lacks Involved parties header.");
-                return;
+                return false;
             }
 
             var header = _killmail.Substring(0, involvedpos);
@@ -144,6 +57,7 @@ namespace DotNetKillboard.Services
             }
 
             var headerParts = _killmail.Substring(0, involvedpos).Trim().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var moonName = "";
             var moonFound = false;
 
             foreach (var part in headerParts) {
@@ -178,8 +92,8 @@ namespace DotNetKillboard.Services
                     //bad assumption here - moon has to come before security.
                     Result.Header.SystemName = tmp;
 
-                    if (Result.Header.MoonName.InsensitiveCompare(_unkown) && moonFound) {
-                        Result.Header.MoonName = tmp;
+                    if (moonName.InsensitiveCompare(Constants.Unkown) && moonFound) {
+                        moonName = tmp;
                         Result.Header.VictimName = tmp;
                     }
                     continue;
@@ -203,40 +117,36 @@ namespace DotNetKillboard.Services
             }
 
             if (moonFound) {
-                Result.Header.VictimName = Result.Header.MoonName;
+                Result.Header.VictimName = moonName;
             }
-        }
 
-        private void ParseFactionWarfare() {
-            if (Result.Header.AllianceName.InsensitiveCompare(_none))
+            if (Result.Header.AllianceName.InsensitiveCompare(Constants.None))
                 Result.Header.AllianceName = Result.Header.FactionName;
-        }
 
-        /// <summary>
-        /// Report the errors for the things that make sense.
-        /// we need pilot names, corp names, ship types, and the system to be sure
-        /// the rest aren't required but for completeness, you'd want them in :)
-        /// </summary>
-        private void CleanUpHeaders() {
-            if (Result.Header.VictimName.InsensitiveCompare(_unkown)) {
+            if (Result.Header.VictimName.InsensitiveCompare(Constants.Unkown)) {
                 AddError("Victim has no name.");
                 Result.Header.VictimName = "";
             }
 
-            if (Result.Header.CorporationName.InsensitiveCompare(_unkown)) {
+            if (Result.Header.CorporationName.InsensitiveCompare(Constants.Unkown)) {
                 AddError("Victim has no corp.");
                 Result.Header.CorporationName = "";
             }
 
-            if (Result.Header.ShipName.InsensitiveCompare(_unkown)) {
+            if (Result.Header.ShipName.InsensitiveCompare(Constants.Unkown)) {
                 AddError("Victim has no ship type.");
                 Result.Header.ShipName = "";
             }
 
-            if (Result.Header.SystemName.InsensitiveCompare(_unkown)) {
+            if (Result.Header.SystemName.InsensitiveCompare(Constants.Unkown)) {
                 AddError("Killmail lacks solar system information.");
                 Result.Header.SystemName = "";
             }
+
+            return Result.Header.Timestamp.HasValue && !Result.Header.FactionName.IsNullOrEmpty() 
+                && !Result.Header.AllianceName.IsNullOrEmpty() && !Result.Header.CorporationName.IsNullOrEmpty() 
+                && !Result.Header.VictimName.IsNullOrEmpty() && !Result.Header.ShipName.IsNullOrEmpty()
+                && !Result.Header.SystemName.IsNullOrEmpty();
         }
 
         private void ParseInvolvedParties() {
@@ -283,7 +193,7 @@ namespace DotNetKillboard.Services
 
             for (var j = 0; j < groups.Count; j++) {
                 var group = groups[j];
-                var party = new KillInvolvedParty();
+                var party = new ParsedInvolvedParty();
 
                 foreach (var line in group) {
                     string tmp;
@@ -363,15 +273,15 @@ namespace DotNetKillboard.Services
                     }
                 }
 
-                if (party.AllianceName.InsensitiveCompare(_none)) {
+                if (party.AllianceName.InsensitiveCompare(Constants.None)) {
                     party.AllianceName = party.FactionName;
                 }
 
-                if (party.CorporationName.InsensitiveCompare(_none)) {
+                if (party.CorporationName.InsensitiveCompare(Constants.None)) {
                     AddError(string.Format("Involved party has no corp. (Party No. {0})", j));
                 }
 
-                if (party.PilotName.InsensitiveCompare(_unkown)) {
+                if (party.PilotName.InsensitiveCompare(Constants.Unkown)) {
                     if (party.WeaponName.IndexOf("Mobile") >= 0 || party.WeaponName.IndexOf("Control Tower") >= 0) {
                         //for involved parties parsed that lack a pilot, but are actually POS or mobile warp disruptors
                         party.PilotName = party.WeaponName;
@@ -380,7 +290,7 @@ namespace DotNetKillboard.Services
                     }
                 }
 
-                if (party.WeaponName.InsensitiveCompare(_unkown)) {
+                if (party.WeaponName.InsensitiveCompare(Constants.Unkown)) {
                     AddError(string.Format("No weapon found for pilot {0}.", party.PilotName));
                 }
 
@@ -389,7 +299,6 @@ namespace DotNetKillboard.Services
         }
 
         private void ParseDestroyedItems() {
-
             var destroyedpos = _killmail.IndexOf("Destroyed items:");
 
             if (destroyedpos < 0)
@@ -404,11 +313,25 @@ namespace DotNetKillboard.Services
             var endpos = pos - destroyedpos - 16;
             var destroyedSection = _killmail.Substring(destroyedpos + 16, endpos).Trim();
             var destroyed = destroyedSection.Split(new[] { "\n" }, StringSplitOptions.None);
-
-            FindDestroyedItems(destroyed);
+            var items = ParseItems(destroyed);
+            Result.AddDestroyedItems(items);
         }
 
-        private void FindDestroyedItems(IEnumerable<string> destroyed) {
+        private void ParseDroppedItems() {
+            var startpos = _killmail.IndexOf("Dropped items:");
+
+            if (startpos < 0)
+                return;
+
+            var droppedSection = _killmail.Substring(startpos + 14).Trim();
+            var dropped = droppedSection.Split(new[] { "\n" }, StringSplitOptions.None);
+            var droppedItems = ParseItems(dropped);
+            Result.AddDroppedItems(droppedItems);
+        }
+
+        private IEnumerable<ParsedKillItem> ParseItems(IEnumerable<string> destroyed) {
+            var items = new List<ParsedKillItem>();
+
             foreach (var line in destroyed) {
                 var current = line.Trim();
                 var container = false;
@@ -449,7 +372,7 @@ namespace DotNetKillboard.Services
 
                 if (hasqty && !hasloc) {
                     itemlen = qtypos;
-                    qtylen = current.Length - qtypos -6;
+                    qtylen = current.Length - qtypos - 6;
                     if (container)
                         location = "Cargo";
                 }
@@ -482,16 +405,16 @@ namespace DotNetKillboard.Services
                     location = "Cargo";
                 }
 
-                var item = new KillDestroyedItem {
+                var item = new ParsedKillItem {
                     Name = itemname.Trim(),
                     Location = location,
                     Quantity = int.Parse(quantity)
                 };
 
-                Result.AddDestroyedItem(item);
+                items.Add(item);
             }
 
-            return;
+            return items;
         }
 
         #region Helpers

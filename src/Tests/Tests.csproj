@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\lib\newtonsoft\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\lib\nunit\nunit.framework.dll</HintPath>
     </Reference>
@@ -41,6 +44,7 @@
   <ItemGroup>
     <Compile Include="DefaultKillParserTest.cs" />
     <Compile Include="InMemoryBusTest.cs" />
+    <Compile Include="ObjectDumper.cs" />
     <Compile Include="TestResolver.cs" />
     <Compile Include="TinyIOC.cs" />
   </ItemGroup>

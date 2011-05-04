@@ -4,7 +4,7 @@ namespace DotNetKillboard.Services
 {
     public interface IKillMailParser
     {
-        void Parse(string killmail, bool checkAuthorization = true);
+        bool Parse(string killmail);
     }
 
     public class KillMailException : Exception

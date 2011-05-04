@@ -1,5 +1,4 @@
-using System;
-using DotNetKillboard.Services;
+using DotNetKillboard.Services.Impl;
 using NUnit.Framework;
 
 namespace Tests
@@ -140,14 +139,9 @@ Hydra F.O.F. Heavy Missile I, Qty: 617 (Cargo)
 
         [Test]
         public void Parse1() {
-            var parser = new DefaultKillMailParser();
+            var parser = new TextKillMailParser();
             parser.Parse(Kill);
-
-            Console.WriteLine(parser.Result);
-
-            foreach (var error in parser.ParseErrors) {
-                Console.WriteLine(error);
-            }
+            parser.Result.Dump();
         }
     }
 }
