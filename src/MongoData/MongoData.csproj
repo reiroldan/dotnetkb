@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectionNamesFactory.cs" />
+    <Compile Include="FilterHelper.cs" />
     <Compile Include="MongoEventStore.cs" />
     <Compile Include="MongoReportingRepository.cs" />
     <Compile Include="Queries\AllianceQueries.cs" />

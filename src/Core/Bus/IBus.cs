@@ -25,15 +25,45 @@ namespace DotNetKillboard.Bus
         void Publish<T>(T @event) where T : IEvent;
 
         /// <summary>
-        /// Registers the specified <see cref="IMessage"/> to be handled by a specific action handler
+        /// Register the specified command type and handler
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="handler"></param>
-        void Register<T>(Action<T> handler) where T : IMessage;
+        /// <param name="commandType"></param>
+        /// <param name="commandHandlerType"></param>
+        void RegisterCommand(Type commandType, Type commandHandlerType);
 
-        void RegisterEvent<TEvent, TEventHandler>() where TEvent : IEvent where TEventHandler : IEventHandler<TEvent>;
-        
-        void RegisterCommand<TCommand, TCommandHandler>() where TCommand : ICommand where TCommandHandler : ICommandHandler<TCommand>;
+        /// <summary>
+        /// Register the specified event type and handler
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="eventHandlerType"></param>
+        void RegisterEvent(Type eventType, Type eventHandlerType);
     }
-    
+
+    public static class IBusExtensions
+    {
+        /// <summary>
+        /// Register the specified command type and handler
+        /// </summary>
+        /// <typeparam name="TCommand"></typeparam>
+        /// <typeparam name="TCommandHandler"></typeparam>
+        /// <param name="bus"></param>
+        public static void RegisterCommand<TCommand, TCommandHandler>(this IBus bus)
+            where TCommand : ICommand
+            where TCommandHandler : ICommandHandler<TCommand> {
+            bus.RegisterCommand(typeof(TCommand), typeof(TCommandHandler));
+        }
+
+        /// <summary>
+        /// Register the specified event type and handler
+        /// </summary>
+        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TEventHandler"></typeparam>
+        /// <param name="bus"></param>
+        public static void RegisterEvent<TEvent, TEventHandler>(this IBus bus)
+            where TEvent : IEvent
+            where TEventHandler : IEventHandler<TEvent> {
+            bus.RegisterEvent(typeof(TEvent), typeof(TEventHandler));
+        }
+
+    }
 }

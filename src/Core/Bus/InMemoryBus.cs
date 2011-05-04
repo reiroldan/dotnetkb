@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using DotNetKillboard.Commands;
 using DotNetKillboard.Events;
-using DotNetKillboard.Utils;
 
 namespace DotNetKillboard.Bus
 {
@@ -13,68 +12,53 @@ namespace DotNetKillboard.Bus
     /// </summary>
     public class InMemoryBus : IBus
     {
+
+        private readonly Type _commandType = typeof(ICommand);
+        private readonly Type _commandHandlerType = typeof(ICommandHandler<>);
+        private readonly Type _eventType = typeof(IEvent);
+        private readonly Type _eventHandlerType = typeof(IEventHandler<>);
+
         private readonly IResolver _resolver;
-        private readonly Dictionary<Type, List<Action<IMessage>>> _routes = new Dictionary<Type, List<Action<IMessage>>>();
         private readonly Dictionary<Type, List<Type>> _eventRoutes = new Dictionary<Type, List<Type>>();
         private readonly Dictionary<Type, Type> _commandRoutes = new Dictionary<Type, Type>();
 
         public InMemoryBus(IResolver resolver) {
             _resolver = resolver;
-        }
+        }       
 
-        public void RegisterEvent<TEvent, TEventHandler>()
-            where TEvent : IEvent
-            where TEventHandler : IEventHandler<TEvent> {
+        public void RegisterEvent(Type eventType, Type eventHandlerType) {
+            if (!_eventType.IsAssignableFrom(eventType))
+                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command type.", eventType.Name));
+
+            if (!_eventHandlerType.IsAssignableFrom(eventHandlerType))
+                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command handler type.", eventHandlerType.Name));
 
             List<Type> handlers;
-            var eventType = typeof(TEvent);
-
+            
             if (!_eventRoutes.TryGetValue(eventType, out handlers)) {
                 handlers = new List<Type>();
                 _eventRoutes.Add(eventType, handlers);
             }
 
-            handlers.Add(typeof(TEventHandler));
+            handlers.Add(eventHandlerType);
         }
 
-        public void RegisterCommand<TCommand, TCommandHandler>()
-            where TCommand : ICommand
-            where TCommandHandler : ICommandHandler<TCommand> {
+        public void RegisterCommand(Type commandType, Type commandHandlerType) {
+            if (!_commandType.IsAssignableFrom(commandType))
+                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command type.", commandType.Name));
 
-            var commandType = typeof(TCommand);
+            if (!_commandHandlerType.IsAssignableFrom(commandHandlerType))
+                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command handler type.", commandHandlerType.Name));
 
             if (_commandRoutes.ContainsKey(commandType))
                 throw new InvalidOperationException(
                     string.Format("There is already a handler registered for command type {0}.", commandType));
 
-            _commandRoutes.Add(commandType, typeof(TCommandHandler));
-        }
-
-        public void Register<T>(Action<T> handler) where T : IMessage {
-            List<Action<IMessage>> handlers;
-
-            if (!_routes.TryGetValue(typeof(T), out handlers)) {
-                handlers = new List<Action<IMessage>>();
-                _routes.Add(typeof(T), handlers);
-            }
-
-            handlers.Add(DelegateAdjuster.CastArgument<IMessage, T>(x => handler(x)));
+            _commandRoutes.Add(commandType, commandHandlerType);
         }
 
         public void Send<T>(T command) where T : ICommand {
-            List<Action<IMessage>> handlers;
-
             var commandType = typeof(T);
-
-            if (_routes.TryGetValue(commandType, out handlers)) {
-                if (handlers.Count != 1) {
-                    throw new InvalidOperationException(string.Format("Found multiple handlers for {0}",
-                                                                      commandType));
-                }
-
-                handlers[0](command);
-                return;
-            }
 
             Type handlerType;
 
@@ -91,18 +75,18 @@ namespace DotNetKillboard.Bus
         }
 
         public void Publish<T>(T @event) where T : IEvent {
-            List<Action<IMessage>> handlers;
+            List<Type> handlers;
 
-            if (!_routes.TryGetValue(@event.GetType(), out handlers))
+            if (!_eventRoutes.TryGetValue(@event.GetType(), out handlers))
                 return;
 
-            foreach (var handler in handlers) {
-                var handler1 = handler;
+            foreach (var handlerType in handlers) {
+                var handler = (IEventHandler<T>)_resolver.TryResolve(handlerType);
 
                 if (@event.Async)
-                    ThreadPool.QueueUserWorkItem(x => handler1(@event));
+                    ThreadPool.QueueUserWorkItem(x => handler.Handle(@event));
                 else {
-                    handler1(@event);
+                    handler.Handle(@event);
                 }
             }
         }

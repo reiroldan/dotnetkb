@@ -62,9 +62,7 @@ namespace DotNetKillboard.Services.Implementation
                 if (dto.AllianceId != allianceId) {
                     dto.AllianceId = allianceId;
                     _bus.Send(new ChangeCorporationsAlliance(dto.Id, allianceId));
-
-                    //TODO: get pilots and update them
-
+                    
                     var pilots = _reportingRepository.QueryFor<IPilotsInCorporationQuery>(c => c.Sequence = dto.Sequence).Execute();
 
                     foreach (var pilot in pilots) {

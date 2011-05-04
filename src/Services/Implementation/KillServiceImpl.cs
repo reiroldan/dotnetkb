@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotNetKillboard.Bus;
-using DotNetKillboard.Commands;
 using DotNetKillboard.Reporting;
-using DotNetKillboard.ReportingModel;
 using DotNetKillboard.ReportingQueries;
 using DotNetKillboard.Services.Model;
 
@@ -13,10 +11,12 @@ namespace DotNetKillboard.Services.Implementation
     {
         private readonly IBus _bus;
         private readonly IReportingRepository _repository;
+        private readonly IEntitiesService _entitiesService;
 
-        public KillServiceImpl(IBus bus, IReportingRepository repository) {
+        public KillServiceImpl(IBus bus, IReportingRepository repository, IEntitiesService entitiesService) {
             _bus = bus;
             _repository = repository;
+            _entitiesService = entitiesService;
         }
 
         public void CreateKill(ParsedKillResult kill) {
@@ -25,48 +25,15 @@ namespace DotNetKillboard.Services.Implementation
                 throw new KillMailException(errors);
             }
 
-            var allianceNameQuery = _repository.QueryFor<IAllianceByNameQuery>();
-            var corpNameQuery = _repository.QueryFor<ICorporationByNameQuery>();
-            var pilotNameQuery = _repository.QueryFor<IPilotByNameQuery>();
-            var systemNameQuery = _repository.QueryFor<ISolarSystemByNameQuery>();
-            var itemsNamedQuery = _repository.QueryFor<IItemsWithNamesQuery>();
-
-            systemNameQuery.Name = kill.Header.SystemName;
-            var victimSystem = systemNameQuery.Execute();
+            var victimSystem = _repository.QueryFor<ISolarSystemByNameQuery>(q => q.Name = kill.Header.SystemName).Execute();
 
             if (victimSystem == null) {
                 throw new KillMailException("Missing victim's system {0}", kill.Header.SystemName);
             }
 
-            allianceNameQuery.Name = kill.Header.AllianceName;
-
-            var victimAlliance = allianceNameQuery.Execute();
-            var victimAllianceSequence = victimAlliance != null ? victimAlliance.Sequence : 0;
-
-            // aliance has to be created
-            if (victimAlliance == null) {
-                victimAllianceSequence = _repository.GetNextSequenceFor<AllianceDto>();
-                var uid = SystemIdGenerator.Next();
-                _bus.Send(new CreateAlliance(uid, victimAllianceSequence, kill.Header.AllianceName, 0));
-            }
-
-            corpNameQuery.Name = kill.Header.CorporationName;
-
-            var victimCorp = corpNameQuery.Execute();
-            
-            // corp has to be created
-            if (victimCorp == null) {
-
-            }
-
-            pilotNameQuery.Name = kill.Header.VictimName;
-
-            var victimPilot = pilotNameQuery.Execute();
-
-            // pilot has to be created
-            if (victimPilot == null) {
-
-            }
+            var victimAlliance = _entitiesService.GetAlliance(kill.Header.AllianceName);
+            var victimCorp = _entitiesService.GetCorporation(kill.Header.CorporationName, victimAlliance.Sequence);
+            var victimPilot = _entitiesService.GetPilot(kill.Header.VictimName, victimAlliance.Sequence, victimCorp.Sequence);
 
             // Build names of all items involved
             var itemNames = new List<string> { kill.Header.ShipName };
@@ -75,37 +42,16 @@ namespace DotNetKillboard.Services.Implementation
             itemNames.AddRange(kill.InvolvedParties.Select(item => item.ShipName));
             itemNames.AddRange(kill.InvolvedParties.Select(item => item.WeaponName));
 
+            var itemsNamedQuery = _repository.QueryFor<IItemsWithNamesQuery>();
+
             itemsNamedQuery.Names = itemNames.Distinct();
 
             var involvedItems = itemsNamedQuery.Execute();
 
             foreach (var party in kill.InvolvedParties) {
-                allianceNameQuery.Name = party.AllianceName;
-
-                var partyAlliance = allianceNameQuery.Execute();
-
-                // aliance has to be created
-                if (partyAlliance == null) {
-
-                }
-
-                corpNameQuery.Name = party.CorporationName;
-
-                var partyCorp = corpNameQuery.Execute();
-
-                // corp has to be created
-                if (partyCorp == null) {
-
-                }
-
-                pilotNameQuery.Name = party.PilotName;
-
-                var partyPilot = pilotNameQuery.Execute();
-
-                // pilot has to be created
-                if (partyPilot == null) {
-
-                }
+                var partyAlliance = _entitiesService.GetAlliance(party.AllianceName);
+                var partyCorp = _entitiesService.GetCorporation(party.CorporationName, partyAlliance.Sequence);
+                var partyPilot = _entitiesService.GetPilot(party.PilotName, partyAlliance.Sequence, partyCorp.Sequence);
             }
 
         }

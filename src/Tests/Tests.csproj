@@ -47,7 +47,9 @@
     <Compile Include="DefaultKillParserTest.cs" />
     <Compile Include="InMemoryBusTest.cs" />
     <Compile Include="MongoDataTest\ReportingRepositoryTest.cs" />
+    <Compile Include="MongoTestBase.cs" />
     <Compile Include="ObjectDumper.cs" />
+    <Compile Include="ServiceTest\KillServiceTest.cs" />
     <Compile Include="TestResolver.cs" />
     <Compile Include="TinyIOC.cs" />
   </ItemGroup>
