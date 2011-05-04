@@ -10,7 +10,6 @@ namespace DotNetKillboard.Services.Impl
         private string _killmail;
 
         public TextKillMailParser() {
-            ParseErrors = new List<string>();
             Result = new ParsedKillResult();
         }
 
@@ -31,8 +30,6 @@ namespace DotNetKillboard.Services.Impl
         }
 
         public ParsedKillResult Result { get; set; }
-
-        public List<string> ParseErrors { get; private set; }
 
         private void PerformSubstitutions() {
             _killmail = _killmail
@@ -426,7 +423,7 @@ namespace DotNetKillboard.Services.Impl
         }
 
         private void AddError(string msg) {
-            ParseErrors.Add(msg);
+            Result.AddParseError(msg);
         }
 
         #endregion

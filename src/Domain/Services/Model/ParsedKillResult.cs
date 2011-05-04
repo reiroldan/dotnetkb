@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotNetKillboard.Services
 {
@@ -7,6 +8,7 @@ namespace DotNetKillboard.Services
         private readonly List<ParsedInvolvedParty> _involvedParties;
         private readonly List<ParsedKillItem> _destroyedItems;
         private readonly List<ParsedKillItem> _droppedItems;
+        private readonly List<string> _parseErrors;
 
         public ParsedKillHeader Header { get; set; }
 
@@ -20,11 +22,18 @@ namespace DotNetKillboard.Services
 
         public IEnumerable<ParsedKillItem> DroppedItems { get { return _droppedItems; } }
 
+        public IEnumerable<string> ParseErrors { get { return _parseErrors; } }
+
+        public bool HasParseErrors {
+            get { return _parseErrors.Count > 0; }
+        }
+
         public ParsedKillResult() {
             Header = new ParsedKillHeader();
             _involvedParties = new List<ParsedInvolvedParty>();
             _destroyedItems = new List<ParsedKillItem>();
             _droppedItems = new List<ParsedKillItem>();
+            _parseErrors = new List<string>();
         }
 
         public void AddInvolvedParty(ParsedInvolvedParty party) {
@@ -37,6 +46,10 @@ namespace DotNetKillboard.Services
 
         public void AddDroppedItems(IEnumerable<ParsedKillItem> droppedItems) {
             _droppedItems.AddRange(droppedItems);
+        }
+
+        public void AddParseError(string error) {
+            _parseErrors.Add(error);
         }
     }
 }

@@ -55,12 +55,14 @@
     <Compile Include="Events\PilotEvents.cs" />
     <Compile Include="Reporting\AllianceDtos.cs" />
     <Compile Include="Reporting\PilotDtos.cs" />
+    <Compile Include="Services\IKillService.cs" />
+    <Compile Include="Services\Impl\KillServiceImpl.cs" />
     <Compile Include="Services\Impl\TextKillMailParser.cs" />
     <Compile Include="Services\IKillParser.cs" />
-    <Compile Include="Services\ParsedKillHeader.cs" />
-    <Compile Include="Services\ParsedInvolvedParty.cs" />
-    <Compile Include="Services\ParsedKillItem.cs" />
-    <Compile Include="Services\ParsedKillResult.cs" />
+    <Compile Include="Services\Model\ParsedKillHeader.cs" />
+    <Compile Include="Services\Model\ParsedInvolvedParty.cs" />
+    <Compile Include="Services\Model\ParsedKillItem.cs" />
+    <Compile Include="Services\Model\ParsedKillResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
