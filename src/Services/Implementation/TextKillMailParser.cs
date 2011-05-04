@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DotNetKillboard.Services.Model;
 
-namespace DotNetKillboard.Services.Impl
+namespace DotNetKillboard.Services.Implementation
 {
     public class TextKillMailParser : IKillMailParser
     {

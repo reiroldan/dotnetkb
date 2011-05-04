@@ -1,4 +1,4 @@
-﻿namespace DotNetKillboard.Services
+﻿namespace DotNetKillboard.Services.Model
 {
     public class ParsedInvolvedParty
     {

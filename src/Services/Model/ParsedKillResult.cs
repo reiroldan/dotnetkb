@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace DotNetKillboard.Services
+namespace DotNetKillboard.Services.Model
 {
     public class ParsedKillResult
     {

@@ -1,4 +1,4 @@
-using DotNetKillboard.Services.Impl;
+using DotNetKillboard.Services.Implementation;
 using NUnit.Framework;
 
 namespace Tests

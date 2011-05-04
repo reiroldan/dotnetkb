@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotNetKillboard.Services
+namespace DotNetKillboard.Services.Model
 {
     public class ParsedKillHeader
     {

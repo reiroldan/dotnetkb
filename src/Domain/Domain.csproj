@@ -63,8 +63,6 @@
     <Compile Include="ReportingQueries\InventoryQueries.cs" />
     <Compile Include="ReportingQueries\KillQueries.cs" />
     <Compile Include="ReportingQueries\PilotQueries.cs" />
-    <Compile Include="Services\KillServiceImpl.cs" />
-    <Compile Include="Services\TextKillMailParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

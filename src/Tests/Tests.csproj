@@ -64,6 +64,10 @@
       <Project>{15C4A50D-A367-43B4-97B0-CC764C55167F}</Project>
       <Name>MongoData</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Services.csproj">
+      <Project>{F1C6DFA6-7D8A-41FA-A857-0FD5D47A96E4}</Project>
+      <Name>Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

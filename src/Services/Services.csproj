@@ -33,14 +33,30 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IKillParser.cs" />
+    <Compile Include="IKillService.cs" />
+    <Compile Include="Implementation\KillServiceImpl.cs" />
+    <Compile Include="Implementation\TextKillMailParser.cs" />
+    <Compile Include="Model\ParsedInvolvedParty.cs" />
+    <Compile Include="Model\ParsedKillHeader.cs" />
+    <Compile Include="Model\ParsedKillItem.cs" />
+    <Compile Include="Model\ParsedKillResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{3A7EA378-05CE-4071-A411-D98EC6DD211C}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Domain\Domain.csproj">
+      <Project>{BB163463-5707-4EE0-8807-A0FBA1A77AC1}</Project>
+      <Name>Domain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

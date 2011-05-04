@@ -1,6 +1,7 @@
 using DotNetKillboard.Bus;
+using DotNetKillboard.Services.Model;
 
-namespace DotNetKillboard.Services.Impl
+namespace DotNetKillboard.Services.Implementation
 {
     public class KillServiceImpl : IKillService
     {

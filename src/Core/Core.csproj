@@ -56,12 +56,6 @@
     <Compile Include="ReportingQueries\IQuery.cs" />
     <Compile Include="ReportingQueries\ISingleQuery.cs" />
     <Compile Include="ReportingQueries\QueryException.cs" />
-    <Compile Include="Services\IKillParser.cs" />
-    <Compile Include="Services\IKillService.cs" />
-    <Compile Include="Services\Model\ParsedInvolvedParty.cs" />
-    <Compile Include="Services\Model\ParsedKillHeader.cs" />
-    <Compile Include="Services\Model\ParsedKillItem.cs" />
-    <Compile Include="Services\Model\ParsedKillResult.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="SystemDateTime.cs" />
     <Compile Include="Utils\ReflectionUtilities.cs" />
