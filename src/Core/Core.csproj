@@ -56,6 +56,10 @@
     <Compile Include="Events\IEventStore.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IResolver.cs" />
+    <Compile Include="ReportingQueries\IListQuery.cs" />
+    <Compile Include="ReportingQueries\IQuery.cs" />
+    <Compile Include="ReportingQueries\ISingleQuery.cs" />
+    <Compile Include="ReportingQueries\QueryException.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="SystemDateTime.cs" />
     <Compile Include="Utils\ReflectionUtilities.cs" />

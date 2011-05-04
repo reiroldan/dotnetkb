@@ -43,13 +43,23 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectionNamesFactory.cs" />
     <Compile Include="MongoEventStore.cs" />
     <Compile Include="MongoRepository.cs" />
+    <Compile Include="Queries\AllianceQueries.cs" />
+    <Compile Include="Queries\CorporationQueries.cs" />
+    <Compile Include="Queries\IMongoQuery.cs" />
+    <Compile Include="Queries\InventoryQueries.cs" />
+    <Compile Include="Queries\PilotQueries.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{3A7EA378-05CE-4071-A411-D98EC6DD211C}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Domain\Domain.csproj">
+      <Project>{BB163463-5707-4EE0-8807-A0FBA1A77AC1}</Project>
+      <Name>Domain</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

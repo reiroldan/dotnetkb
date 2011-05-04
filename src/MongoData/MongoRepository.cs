@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DotNetKillboard.Reporting;
+using DotNetKillboard.ReportingQueries;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
@@ -8,11 +9,12 @@ namespace DotNetKillboard.Data
 {
     public class MongoReportingRepository : IReportingRepository
     {
-
+        private readonly IResolver _resolver;
         private readonly string _database;
         private readonly MongoServer _instance;
 
-        public MongoReportingRepository(string connectionString, string database) {
+        public MongoReportingRepository(IResolver resolver, string connectionString, string database) {
+            _resolver = resolver;
             _database = database;
             _instance = MongoServer.Create(connectionString);
         }
@@ -36,19 +38,34 @@ namespace DotNetKillboard.Data
             throw new NotImplementedException();
         }
 
+        public TQuery QueryFor<TQuery>(Action<TQuery> configure = null) where TQuery : class, IQuery {
+            var filter = _resolver.TryResolve<TQuery>() as TQuery;
+
+            if (filter == null)
+                throw new QueryException("Could not resolve a filter for type {0}", typeof(TQuery));
+
+            var mongoFilter = filter as Queries.IMongoQuery;
+
+            if (mongoFilter == null)
+                throw new QueryException("Filter for type {0} is not a valid mongo filter", typeof(TQuery));
+
+            mongoFilter.Database = GetDb();
+
+            if (configure != null)
+                configure(filter);
+
+            return filter;
+        }
+
         #region Internals
 
         private MongoDatabase GetDb() {
             return _instance[_database];
         }
 
-        private static string GetCollectionNameFromType<T>() {
-            return typeof(T).Name;
-        }
-
         private MongoCollection<T> GetCollectionFor<T>() {
             var db = GetDb();
-            var name = GetCollectionNameFromType<T>();
+            var name = CollectionNamesFactory.GetCollectionNameFromType<T>();
             return db.GetCollection<T>(name);
         }
 

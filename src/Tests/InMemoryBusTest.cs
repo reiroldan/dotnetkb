@@ -25,7 +25,7 @@ namespace Tests
             _bus = new InMemoryBus(_resolver);
             _eventStore = new MongoEventStore(_bus, "server=localhost", "TestEventStore");
             _domainRepository = new DomainRepositoryImpl(_eventStore);
-            _reportingRepository = new MongoReportingRepository("server=localhost", "TestReporting");
+            _reportingRepository = new MongoReportingRepository(_resolver, "server=localhost", "TestReporting");
 
             _resolver.Register(typeof(IDomainRepository), _domainRepository);
             _resolver.Register(typeof(IReportingRepository), _reportingRepository);
