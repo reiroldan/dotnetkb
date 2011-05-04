@@ -6,7 +6,10 @@ namespace Tests
     public static class ObjectDumperExtension
     {
 
-        public static void Dump(this object obj, int depth = 0) {
+        public static void Dump(this object obj) {
+            if(obj == null)
+                return;
+            
             var dump = JsonConvert.SerializeObject(obj, Formatting.Indented);
             Console.WriteLine(dump);
         }

@@ -7,15 +7,14 @@ namespace Tests
 {
     public class TestResolver : IResolver
     {
-
-        private readonly TinyIoCContainer _container;
-
         public TestResolver() {
-            _container = new TinyIoCContainer();
+            Container = new TinyIoCContainer();
         }
 
+        public TinyIoCContainer Container { get; private set; }
+
         public void Register(Type type, object instance) {
-            _container.Register(type, instance);
+            Container.Register(type, instance);
         }
 
         public object Resolve(Type type) {
@@ -38,12 +37,12 @@ namespace Tests
 
         public object TryResolve(Type type) {
             object result;
-            _container.TryResolve(type, ResolveOptions.Default, out result);
+            Container.TryResolve(type, ResolveOptions.Default, out result);
             return result;
         }
 
         public IEnumerable<object> TryResolveAll(Type type) {
-            return _container.ResolveAll(type);            
+            return Container.ResolveAll(type);
         }
     }
 }
