@@ -1,6 +1,6 @@
 using System;
 
-namespace DotNetKillboard.Reporting
+namespace DotNetKillboard.ReportingModel
 {
     public class AllianceDto
     {

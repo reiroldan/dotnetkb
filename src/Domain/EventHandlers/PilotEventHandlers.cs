@@ -1,5 +1,6 @@
 using DotNetKillboard.Events;
 using DotNetKillboard.Reporting;
+using DotNetKillboard.ReportingModel;
 
 namespace DotNetKillboard.EventHandlers
 {
