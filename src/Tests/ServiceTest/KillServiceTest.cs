@@ -1,9 +1,5 @@
 using System;
-using System.Linq;
 using DotNetKillboard.Data;
-using DotNetKillboard.Data.Queries;
-using DotNetKillboard.ReportingModel;
-using DotNetKillboard.ReportingQueries;
 using DotNetKillboard.Services;
 using DotNetKillboard.Services.Implementation;
 using DotNetKillboard.Services.Model;
@@ -18,7 +14,8 @@ namespace Tests.ServiceTest
         protected override void OnSetup() {
             RegisterBus()
                 .RegisterReportingRepository()
-                .RegisterEntitiesServices();
+                .RegisterEntitiesServices()
+                .RegisterFilters();
 
             Resolver.Container.Register<IKillService, KillServiceImpl>();
 
@@ -47,16 +44,7 @@ namespace Tests.ServiceTest
 
             var ks = Resolve<IKillService>();
             ks.CreateKill(kill);
-        }
-
-        private class TestSolarSystemByNameQuery : MongoQueryBase, ISolarSystemByNameQuery
-        {
-            public SolarSystemDto Execute() {
-                return new SolarSystemDto { Name = Name };
-            }
-
-            public string Name { get; set; }
-        }
+        }      
 
     }
 }

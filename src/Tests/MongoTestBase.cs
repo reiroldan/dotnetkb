@@ -1,3 +1,4 @@
+using System;
 using DotNetKillboard;
 using DotNetKillboard.Bus;
 using DotNetKillboard.Data;
@@ -60,10 +61,18 @@ namespace Tests
             return this;
         }
 
+        public MongoTestBase RegisterFilters() {
+            var filters = FilterHelper.GetFilterTypes();
+
+            foreach (var f in filters) {
+                Resolver.Container.Register(f.Key, f.Value);
+            }
+            return this;
+        }
+
         protected T Resolve<T>() where T : class {
             return Resolver.Container.Resolve<T>();
         }
-
-        
+       
     }
 }

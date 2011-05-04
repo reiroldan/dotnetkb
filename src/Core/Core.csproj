@@ -59,9 +59,9 @@
     <Compile Include="StringExtensions.cs" />
     <Compile Include="SystemDateTime.cs" />
     <Compile Include="SystemIdGenerator.cs" />
-    <Compile Include="Utils\ReflectionUtilities.cs" />
     <Compile Include="Reporting\IReportingRepository.cs" />
     <Compile Include="Events\DomainRepositoryImpl.cs" />
+    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

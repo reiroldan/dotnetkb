@@ -36,8 +36,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandEventConfigHelper.cs" />
     <Compile Include="CommandHandlers\AllianceCommandHandlers.cs" />
     <Compile Include="CommandHandlers\CorporationCommandHandlers.cs" />
+    <Compile Include="CommandHandlers\KillCommandHandlers.cs" />
     <Compile Include="CommandHandlers\PilotCommandHandlers.cs" />
     <Compile Include="Commands\AllianceCommands.cs" />
     <Compile Include="Commands\CorporationCommands.cs" />
