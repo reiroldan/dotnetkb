@@ -144,6 +144,10 @@ Hydra F.O.F. Heavy Missile I, Qty: 617 (Cargo)
             parser.Parse(Kill);
 
             Console.WriteLine(parser.Result);
+
+            foreach (var error in parser.ParseErrors) {
+                Console.WriteLine(error);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace DotNetKillboard
 {
@@ -11,6 +12,11 @@ namespace DotNetKillboard
 
         public static bool IsNullOrEmpty(this string str) {
             return string.IsNullOrEmpty(str);
+        }
+
+        public static decimal ToInvariantDecimal(this string value) {
+            decimal result;
+            return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out result) ? result : 0;
         }
     }
 }

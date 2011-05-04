@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -45,23 +46,48 @@ namespace DotNetKillboard.Services
         public decimal DamageDone { get; set; }
 
         public bool FinalBlow { get; set; }
+
+        public string FactionName { get; set; }
+    }
+
+    public class KillDestroyedItem
+    {
+        public string Name { get; set; }
+
+        public string Location { get; set; }
+
+        public int Quantity { get; set; }
     }
 
     public class KillParseResult
     {
+        private readonly List<KillInvolvedParty> _involvedParties;
+        private readonly List<KillDestroyedItem> _destroyedItems;
+
         public KillHeader Header { get; set; }
 
         public bool Authorized { get; set; }
 
-        public List<KillInvolvedParty> InvolvedParties { get; private set; }
+        public IEnumerable<KillInvolvedParty> InvolvedParties {
+            get { return _involvedParties; }
+        }
+
+        public IEnumerable<KillDestroyedItem> DestroyedItems {
+            get { return _destroyedItems; }
+        }
 
         public KillParseResult() {
             Header = new KillHeader();
-            InvolvedParties = new List<KillInvolvedParty>();
+            _involvedParties = new List<KillInvolvedParty>();
+            _destroyedItems = new List<KillDestroyedItem>();
         }
 
         public void AddInvolvedParty(KillInvolvedParty party) {
-            InvolvedParties.Add(party);
+            _involvedParties.Add(party);
+        }
+
+        public void AddDestroyedItem(KillDestroyedItem destroyedItem) {
+            _destroyedItems.Add(destroyedItem);
         }
     }
 
@@ -87,13 +113,15 @@ namespace DotNetKillboard.Services
             ParseHeader();
             ParseFactionWarfare();
             CleanUpHeaders();
-            ParseInvolvedParties();
 
             if (!Result.Header.Timestamp.HasValue || Result.Header.FactionName.IsNullOrEmpty() || Result.Header.AllianceName.IsNullOrEmpty()
                 || Result.Header.CorporationName.IsNullOrEmpty() || Result.Header.VictimName.IsNullOrEmpty() || Result.Header.ShipName.IsNullOrEmpty()
                 || Result.Header.SystemName.IsNullOrEmpty()) {
                 return;
             }
+
+            ParseInvolvedParties();
+            ParseDestroyedItems();
 
             Result.Authorized = !checkAuthorization;
         }
@@ -158,12 +186,12 @@ namespace DotNetKillboard.Services
                 }
 
                 if (Match("Security: (.*)", part, out tmp)) {
-                    Result.Header.SystemSecurity = decimal.Parse(tmp);
+                    Result.Header.SystemSecurity = tmp.ToInvariantDecimal();
                     continue;
                 }
 
                 if (Match("Damage Taken: (.*)", part, out tmp)) {
-                    Result.Header.DamageTaken = decimal.Parse(tmp);
+                    Result.Header.DamageTaken = tmp.ToInvariantDecimal();
                     continue;
                 }
 
@@ -224,198 +252,246 @@ namespace DotNetKillboard.Services
             }
 
             var involvedPosition = _killmail.IndexOf("Involved parties:") + 17;
-            var involvedSection = _killmail.Substring(involvedPosition, end - involvedPosition).Trim();
+            var involvedSection = _killmail.Substring(involvedPosition, end - involvedPosition).TrimStart();
             var involved = involvedSection.Split(new[] { "\n" }, StringSplitOptions.None);
-            var groups = new Dictionary<int, List<string>>();
+            var groups = new List<List<string>>();
             var startPos = 0;
 
             for (var j = 0; j < involved.Length; j++) {
 
                 var current = involved[j];
                 var currentList = new List<string>();
-                
-                if (current != "" || involved[j + 1] == "")
+                var atEnd = j + 1 == involved.Length;
+
+                if (current != "" || (!atEnd && involved[j + 1] == ""))
                     continue;
 
-                groups.Add(j, currentList);
+                groups.Add(currentList);
                 var k = startPos;
 
                 while (k < j) {
-                    currentList.Add(involved[k]);
+                    var invPart = involved[k];
+
+                    if (!invPart.IsNullOrEmpty())
+                        currentList.Add(involved[k]);
+
                     k++;
                 }
 
                 startPos = j + 1;
             }
 
-            var ipilot_count = 0; //allows us to be a bit more specific when errors strike
-            var i = 0;
-            var needs_final_blow = true;
+            for (var j = 0; j < groups.Count; j++) {
+                var group = groups[j];
+                var party = new KillInvolvedParty();
 
-            while (i < involved.Length) {
-                var iparts = involved.Length;
-                var finalblow = false;
+                foreach (var line in group) {
+                    string tmp;
 
-                while (i < iparts) {
-                    ipilot_count++;
+                    if (Match("Name: (.*)", line, out tmp)) {
+                        var slash = line.IndexOf("/");
 
-                    var ipname = "Unknown";
-                    var ianame = "None";
-                    var ifname = "None";
-                    var icname = "None";
-                    var isname = "Unknown";
-                    var iwname = "Unknown";
-                    var idmgdone = "0";
-                    var secstatus = "0.0";
+                        if (slash >= 0) {
+                            var name = line.Substring(5, slash - 5).Trim();
+                            var corporation = line.Substring(slash + 1, line.Length - slash + 1).Trim();
 
-                    while (involved[i] == "") {
-                        //compensates for multiple blank lines between involved parties
-                        i++;
-
-                        if (i <= involved.Length)
-                            continue;
-
-                        AddError("Involved parties section prematurely ends.");
-                        return;
-                    }
-
-                    for (var counter = i; counter <= iparts - 1; counter++) {
-                        string tmp;
-                        var current = involved[counter];
-
-                        if (Match("Name: (.*)", current, out tmp)) {
-                            var slash = current.IndexOf("/");
-                            if (slash >= 0) {
-                                var name = current.Substring(5, slash - 5).Trim();
-                                var corporation = current.Substring(slash + 1, current.Length - slash + 1).Trim();
-
-                                // now if the corp bit has final blow info, note it
-                                if (corporation.IndexOf("laid the final blow") > 0) {
-                                    finalblow = true;
-                                    iwname = name;
-                                    end = corporation.IndexOf("(") - 1;
-                                    corporation = corporation.Substring(0, end);
-                                } else {
-                                    finalblow = false;
-                                    iwname = name;
-                                }
-                                // alliance lookup for warp disruptors - normal NPCs aren't to be bundled in
-                                //                        $crp = new Corporation();
-                                //                        $crp->lookup($corporation);
-                                //                        if($crp->getID() > 0 && ( stristr($name, ' warp ') || stristr($name, ' control ')))
-                                //                        {
-                                //                            $al = $crp->getAlliance();
-                                //                            $ianame = $al->getName();
-                                //                        }
-
-                                //                        $ipname = $name;
-                                //                        $icname = $corporation;
+                            // now if the corp bit has final blow info, note it
+                            if (corporation.IndexOf("laid the final blow") > 0) {
+                                party.FinalBlow = true;
+                                party.WeaponName = name;
+                                end = corporation.IndexOf("(") - 1;
+                                corporation = corporation.Substring(0, end);
                             } else {
-                                ipname = tmp;
-                                string tmpipname;
-                                if (Match(@"(.*) \(laid the final blow\)", ipname, out tmpipname)) {
-                                    ipname = tmpipname;
-                                    finalblow = true;
-                                } else {
-                                    finalblow = false;
-                                }
+                                party.WeaponName = name;
                             }
+                            // alliance lookup for warp disruptors - normal NPCs aren't to be bundled in
+                            //                        $crp = new Corporation();
+                            //                        $crp->lookup($corporation);
+                            //                        if($crp->getID() > 0 && ( stristr($name, ' warp ') || stristr($name, ' control ')))
+                            //                        {
+                            //                            $al = $crp->getAlliance();
+                            //                            $ianame = $al->getName();
+                            //                        }
 
-                            continue;
-                        }
-
-                        if (Match("Alliance: (.*)", current, out tmp)) {
-                            ianame = tmp;
-                            continue;
-                        }
-
-                        if (Match("Faction: (.*)", current, out tmp)) {
-                            ifname = tmp;
-                            continue;
-                        }
-
-                        if (Match("Corp: (.*)", current, out tmp)) {
-                            icname = tmp;
-                            continue;
-                        }
-
-                        if (Match("Ship: (.*)", current, out tmp)) {
-                            isname = tmp;
-                            continue;
-                        }
-
-                        if (Match("Weapon: (.*)", current, out tmp)) {
-                            iwname = tmp;
-                            continue;
-                        }
-
-                        if (Match("Security: (.*)", current, out tmp)) {
-                            secstatus = tmp;
-                            continue;
-                        }
-
-                        if (Match("Damage Done: (.*)", current, out tmp)) {
-                            idmgdone = tmp;
-                            continue;
-                        }
-
-                        if (current == "") {
-                            // allows us to process the involved party. This is the empty line after the
-                            // involved party section
-                            counter++;
-                            i = counter;
-                            break;
-                        }
-
-                        // skip over this entry, it could read anything, we don't care. Handy if/when
-                        // new mail fields get added and we aren't handling them yet.
-                        counter++;
-                        i = counter;
-
-                        if (!needs_final_blow)
-                            continue;
-
-                        finalblow = true;
-                        needs_final_blow = false;
-                    }
-
-                    // Faction Warfare stuff
-                    if (ianame.InsensitiveCompare(_none)) {
-                        ianame = ifname;
-                    }
-                    // end faction warfare stuff
-
-                    if (icname.InsensitiveCompare(_none)) {
-                        AddError(string.Format("Involved party has no corp. (Party No. {0})", ipilot_count));
-                    }
-
-                    if (ipname.InsensitiveCompare(_unkown)) {
-                        if (iwname.IndexOf("Mobile") >= 0 || iwname.IndexOf("Control Tower") >= 0) {
-                            //for involved parties parsed that lack a pilot, but are actually POS or mobile warp disruptors
-                            ipname = iwname;
+                            //                        $ipname = $name;
+                            //                        $icname = $corporation;
                         } else {
-                            AddError(string.Format("Involved party has no name. (Party No. {0})", ipilot_count));
+                            party.PilotName = tmp;
+                            string tmpipname;
+                            if (Match(@"(.*) \(laid the final blow\)", tmp, out tmpipname)) {
+                                party.PilotName = tmpipname;
+                                party.FinalBlow = true;
+                            }
                         }
+
+                        continue;
                     }
 
-                    if (iwname.InsensitiveCompare(_unkown)) {
-                        AddError(string.Format("No weapon found for pilot {0}.", ipname));
+                    if (Match("Alliance: (.*)", line, out tmp)) {
+                        party.AllianceName = tmp;
+                        continue;
                     }
 
-                    var party = new KillInvolvedParty {
-                        PilotName = ipname,
-                        CorporationName = icname,
-                        AllianceName = ianame,
-                        SecurityStatus = decimal.Parse(secstatus),
-                        ShipName = isname,
-                        WeaponName = iwname,
-                        DamageDone = decimal.Parse(idmgdone),
-                        FinalBlow = finalblow
-                    };
+                    if (Match("Faction: (.*)", line, out tmp)) {
+                        party.FactionName = tmp;
+                        continue;
+                    }
 
-                    Result.AddInvolvedParty(party);
+                    if (Match("Corp: (.*)", line, out tmp)) {
+                        party.CorporationName = tmp;
+                        continue;
+                    }
+
+                    if (Match("Ship: (.*)", line, out tmp)) {
+                        party.ShipName = tmp;
+                        continue;
+                    }
+
+                    if (Match("Weapon: (.*)", line, out tmp)) {
+                        party.WeaponName = tmp;
+                        continue;
+                    }
+
+                    if (Match("Security: (.*)", line, out tmp)) {
+                        party.SecurityStatus = tmp.ToInvariantDecimal();
+                        continue;
+                    }
+
+                    if (Match("Damage Done: (.*)", line, out tmp)) {
+                        party.DamageDone = tmp.ToInvariantDecimal();
+                        continue;
+                    }
                 }
+
+                if (party.AllianceName.InsensitiveCompare(_none)) {
+                    party.AllianceName = party.FactionName;
+                }
+
+                if (party.CorporationName.InsensitiveCompare(_none)) {
+                    AddError(string.Format("Involved party has no corp. (Party No. {0})", j));
+                }
+
+                if (party.PilotName.InsensitiveCompare(_unkown)) {
+                    if (party.WeaponName.IndexOf("Mobile") >= 0 || party.WeaponName.IndexOf("Control Tower") >= 0) {
+                        //for involved parties parsed that lack a pilot, but are actually POS or mobile warp disruptors
+                        party.PilotName = party.WeaponName;
+                    } else {
+                        AddError(string.Format("Involved party has no name. (Party No. {0})", j));
+                    }
+                }
+
+                if (party.WeaponName.InsensitiveCompare(_unkown)) {
+                    AddError(string.Format("No weapon found for pilot {0}.", party.PilotName));
+                }
+
+                Result.AddInvolvedParty(party);
             }
+        }
+
+        private void ParseDestroyedItems() {
+
+            var destroyedpos = _killmail.IndexOf("Destroyed items:");
+
+            if (destroyedpos < 0)
+                return;
+
+            var pos = _killmail.IndexOf("Dropped items:");
+
+            if (pos == -1) {
+                pos = _killmail.Length;
+            }
+
+            var endpos = pos - destroyedpos - 16;
+            var destroyedSection = _killmail.Substring(destroyedpos + 16, endpos).Trim();
+            var destroyed = destroyedSection.Split(new[] { "\n" }, StringSplitOptions.None);
+
+            FindDestroyedItems(destroyed);
+        }
+
+        private void FindDestroyedItems(IEnumerable<string> destroyed) {
+            foreach (var line in destroyed) {
+                var current = line.Trim();
+                var container = false;
+
+                //API mod will return null when it can't lookup an item, so filter these
+                if (current == "(Cargo)" || current.IndexOf(", Qty:") == 0) {
+                    AddError(string.Format("Item name missing, yet item has quantity. Proposed name {0}", current));
+                    continue;
+                }
+
+                if (current.IsNullOrEmpty()) {
+                    continue;
+                }
+
+                if (current == "Empty.") {
+                    continue;
+                }
+
+                var hasqty = current.Contains(", Qty: ");
+                var qtypos = current.IndexOf(", Qty: ");
+                var hasloc = current.Contains("(");
+                var locpos = current.IndexOf("(");
+                var quantity = "";
+                var location = "";
+                var itemlen = 0;
+                var qtylen = 0;
+                var loclen = 0;
+
+                if (current.IndexOf("Container") >= 0) {
+                    container = true;
+                }
+
+                if (!hasqty && !hasloc) {
+                    itemlen = current.Length;
+                    if (container)
+                        location = "Cargo";
+                }
+
+                if (hasqty && !hasloc) {
+                    itemlen = qtypos;
+                    qtylen = current.Length - qtypos -6;
+                    if (container)
+                        location = "Cargo";
+                }
+
+                if (hasloc && !hasqty) {
+                    itemlen = locpos - 1;
+                    qtylen = 0;
+                    loclen = current.Length - locpos - 2;
+                }
+
+                if (hasloc && hasqty) {
+                    itemlen = qtypos;
+                    qtylen = locpos - qtypos - 7;
+                    loclen = current.Length - locpos - 2;
+                }
+
+                var itemname = current.Substring(0, itemlen);
+
+                if (qtypos >= 0)
+                    quantity = current.Substring(qtypos + 6, qtylen);
+
+                if (locpos >= 0)
+                    location = current.Substring(locpos + 1, loclen);
+
+                if (quantity == "") {
+                    quantity = "1";
+                }
+
+                if (location == "In Container") {
+                    location = "Cargo";
+                }
+
+                var item = new KillDestroyedItem {
+                    Name = itemname.Trim(),
+                    Location = location,
+                    Quantity = int.Parse(quantity)
+                };
+
+                Result.AddDestroyedItem(item);
+            }
+
+            return;
         }
 
         #region Helpers
