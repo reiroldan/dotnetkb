@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace DotNetKillboard.Services.Model
 {
@@ -49,6 +50,23 @@ namespace DotNetKillboard.Services.Model
 
         public void AddParseError(string error) {
             _parseErrors.Add(error);
+        }
+    
+        /// <summary>
+        /// Gets a list of distinct item names that are involved in this kill
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetUsedItemNames() {
+            var itemNames = new List<string> { Header.ShipName };
+            itemNames.AddRange(DestroyedItems.Select(item => item.Name));
+            itemNames.AddRange(DroppedItems.Select(item => item.Name));
+            itemNames.AddRange(InvolvedParties.Select(item => item.ShipName));
+            itemNames.AddRange(InvolvedParties.Select(item => item.WeaponName));
+            
+            itemNames.Remove(Constants.None);
+            itemNames.Remove(Constants.Unkown);
+
+            return itemNames.Distinct();
         }
     }
 }

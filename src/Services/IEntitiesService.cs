@@ -6,6 +6,6 @@ namespace DotNetKillboard.Services
     {
         AllianceDto GetAlliance(string name);
         CorporationDto GetCorporation(string name, int allianceId);
-        PilotDto GetPilot(string name, int allianceId, int corpId);
+        PilotDto GetPilot(string name, int allianceId, int corpId, decimal  securityStatus = 0);
     }
 }

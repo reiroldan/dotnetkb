@@ -16,7 +16,7 @@ namespace DotNetKillboard.CommandHandlers
         }
 
         public void Handle(CreatePilot command) {
-            var item = new Pilot(command.Id, command.Sequence, command.Name, command.AllianceId, command.CorporationId, command.ExternalId);
+            var item = new Pilot(command.Id, command.Sequence, command.Name, command.AllianceId, command.CorporationId, command.SecurityStatus, command.ExternalId);
             _domainRepository.Save(item);
         }
 

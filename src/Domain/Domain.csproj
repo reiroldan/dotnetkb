@@ -59,6 +59,7 @@
     <Compile Include="ReportingModel\AllianceDtos.cs" />
     <Compile Include="ReportingModel\CorporationDto.cs" />
     <Compile Include="ReportingModel\ItemDto.cs" />
+    <Compile Include="ReportingModel\KillDtos.cs" />
     <Compile Include="ReportingModel\PilotDtos.cs" />
     <Compile Include="ReportingModel\SolarSystemDto.cs" />
     <Compile Include="ReportingQueries\AllianceQueries.cs" />

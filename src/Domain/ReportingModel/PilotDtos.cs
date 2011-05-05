@@ -17,5 +17,7 @@ namespace DotNetKillboard.ReportingModel
         public DateTime Timestamp { get; set; }
 
         public int Sequence { get; set; }
+
+        public decimal SecurityStatus { get; set; }
     }
 }

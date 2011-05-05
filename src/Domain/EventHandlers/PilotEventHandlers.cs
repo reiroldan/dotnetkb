@@ -22,7 +22,8 @@ namespace DotNetKillboard.EventHandlers
                 ExternalId = e.ExternalId,
                 Name = e.Name,
                 Timestamp = e.Timestamp,
-                Sequence = e.Sequence
+                Sequence = e.Sequence,
+                SecurityStatus = e.SecurityStatus
             };
 
             _repository.Save(dto);

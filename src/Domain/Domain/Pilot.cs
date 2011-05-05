@@ -11,11 +11,12 @@ namespace DotNetKillboard.Domain
         private int _corporationId;
         private int _externalId;
         private DateTime _timestamp;
+        private decimal _securityStatus;
 
         public Pilot() { }
 
-        public Pilot(Guid id, int sequence, string name, int allianceId, int corporationId, int externalId) {
-            ApplyChange(new PilotCreated(id, sequence, name, allianceId, corporationId, externalId, SystemDateTime.Now()));
+        public Pilot(Guid id, int sequence, string name, int allianceId, int corporationId, decimal securityStatus, int externalId) {
+            ApplyChange(new PilotCreated(id, sequence, name, allianceId, corporationId, securityStatus, externalId, SystemDateTime.Now()));
         }
 
         #region Event Handlers
@@ -28,6 +29,7 @@ namespace DotNetKillboard.Domain
             _corporationId = e.CorporationId;
             _externalId = e.ExternalId;
             _timestamp = e.Timestamp;
+            _securityStatus = e.SecurityStatus;
         }
 
         protected void OnPilotCorporationChanged(PilotCorporationChanged e) {

@@ -12,16 +12,19 @@ namespace DotNetKillboard.Events
 
         public int CorporationId { get; set; }
 
+        public decimal SecurityStatus { get; set; }
+
         public int ExternalId { get; set; }
 
         public DateTime Timestamp { get; set; }
 
-        public PilotCreated(Guid id, int sequence, string name, int allianceId, int corporationId, int externalId, DateTime timestamp)
+        public PilotCreated(Guid id, int sequence, string name, int allianceId, int corporationId, decimal securityStatus, int externalId, DateTime timestamp)
             : base(id) {
             Sequence = sequence;
             Name = name;
             AllianceId = allianceId;
             CorporationId = corporationId;
+            SecurityStatus = securityStatus;
             ExternalId = externalId;
             Timestamp = timestamp;
         }

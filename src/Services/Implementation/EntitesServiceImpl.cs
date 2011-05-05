@@ -75,7 +75,7 @@ namespace DotNetKillboard.Services.Implementation
             return dto;
         }
 
-        public PilotDto GetPilot(string name, int allianceId, int corpId) {
+        public PilotDto GetPilot(string name, int allianceId, int corpId, decimal securityStatus = 0) {
             var query = _reportingRepository.QueryFor<IPilotByNameQuery>(c => c.Name = name);
             var dto = query.Execute();
 
@@ -83,7 +83,7 @@ namespace DotNetKillboard.Services.Implementation
                 var sequence = _reportingRepository.GetNextSequenceFor<PilotDto>();
                 var uid = SystemIdGenerator.Next();
 
-                _bus.Send(new CreatePilot(uid, sequence, name, allianceId, corpId, 0));
+                _bus.Send(new CreatePilot(uid, sequence, name, allianceId, corpId,securityStatus, 0));
 
                 dto = new PilotDto {
                     AllianceId = allianceId,

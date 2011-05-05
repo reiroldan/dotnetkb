@@ -10,16 +10,19 @@ namespace DotNetKillboard.Commands
 
         public int CorporationId { get; set; }
 
+        public decimal SecurityStatus { get; set; }
+
         public int ExternalId { get; set; }
 
         public int AllianceId { get; set; }
 
-        public CreatePilot(Guid id, int sequence, string name, int allianceId, int corporationId, int externalId)
+        public CreatePilot(Guid id, int sequence, string name, int allianceId, int corporationId, decimal securityStatus, int externalId)
             : base(id) {
             Sequence = sequence;
             Name = name;
             AllianceId = allianceId;
             CorporationId = corporationId;
+            SecurityStatus = securityStatus;
             ExternalId = externalId;
         }
     }
@@ -41,6 +44,6 @@ namespace DotNetKillboard.Commands
         public ChangePilotsAlliance(Guid id, int allianceId)
             : base(id) {
             AllianceId = allianceId;
-        }        
+        }
     }
 }

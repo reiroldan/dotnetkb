@@ -7,5 +7,7 @@
         public string Location { get; set; }
 
         public int Quantity { get; set; }
+
     }
+   
 }
