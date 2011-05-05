@@ -62,11 +62,11 @@ namespace DotNetKillboard.Services.Implementation
                 if (dto.AllianceId != allianceId) {
                     dto.AllianceId = allianceId;
                     _bus.Send(new ChangeCorporationsAlliance(dto.Id, allianceId));
-                    
+
                     var pilots = _reportingRepository.QueryFor<IPilotsInCorporationQuery>(c => c.Sequence = dto.Sequence).Execute();
 
                     foreach (var pilot in pilots) {
-                        _bus.Send(new ChangePilotsCorporation(pilot, dto.Sequence));
+                        _bus.Send(new ChangePilotsAlliance(pilot, allianceId));
                     }
 
                 }
@@ -91,7 +91,8 @@ namespace DotNetKillboard.Services.Implementation
                     ExternalId = 0,
                     Id = uid,
                     Name = name,
-                    Timestamp = SystemDateTime.Now()
+                    Timestamp = SystemDateTime.Now(),
+                    Sequence = sequence
                 };
             } else {
                 if (dto.CorporationId != corpId) {

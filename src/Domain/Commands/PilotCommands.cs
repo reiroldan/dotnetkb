@@ -30,7 +30,17 @@ namespace DotNetKillboard.Commands
 
         public ChangePilotsCorporation(Guid id, int corporationId)
             : base(id) {
-            CorporationId = corporationId;        
+            CorporationId = corporationId;
         }
+    }
+
+    public class ChangePilotsAlliance : CommandBase
+    {
+        public int AllianceId { get; set; }
+
+        public ChangePilotsAlliance(Guid id, int allianceId)
+            : base(id) {
+            AllianceId = allianceId;
+        }        
     }
 }

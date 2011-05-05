@@ -42,11 +42,7 @@ namespace DotNetKillboard.Services.Implementation
             itemNames.AddRange(kill.InvolvedParties.Select(item => item.ShipName));
             itemNames.AddRange(kill.InvolvedParties.Select(item => item.WeaponName));
 
-            var itemsNamedQuery = _repository.QueryFor<IItemsWithNamesQuery>();
-
-            itemsNamedQuery.Names = itemNames.Distinct();
-
-            var involvedItems = itemsNamedQuery.Execute();
+            var involvedItems = _repository.QueryFor<IItemsWithNamesQuery>(n => n.Names = itemNames.Distinct()).Execute();            
 
             foreach (var party in kill.InvolvedParties) {
                 var partyAlliance = _entitiesService.GetAlliance(party.AllianceName);

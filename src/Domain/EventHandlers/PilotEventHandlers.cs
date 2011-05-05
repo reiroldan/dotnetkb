@@ -1,10 +1,12 @@
+using System;
 using DotNetKillboard.Events;
 using DotNetKillboard.Reporting;
 using DotNetKillboard.ReportingModel;
 
 namespace DotNetKillboard.EventHandlers
 {
-    public class PilotEventHandlers : IEventHandler<PilotCreated>, IEventHandler<PilotCorporationChanged>
+    public class PilotEventHandlers : IEventHandler<PilotCreated>,
+        IEventHandler<PilotCorporationChanged>, IEventHandler<PilotAllianceChanged>
     {
         private readonly IReportingRepository _repository;
 
@@ -20,6 +22,7 @@ namespace DotNetKillboard.EventHandlers
                 ExternalId = e.ExternalId,
                 Name = e.Name,
                 Timestamp = e.Timestamp,
+                Sequence = e.Sequence
             };
 
             _repository.Save(dto);
@@ -29,7 +32,13 @@ namespace DotNetKillboard.EventHandlers
             var dto = _repository.Get<PilotDto>(e.Id);
             dto.CorporationId = e.CorporationId;
             dto.Timestamp = e.Timestamp;
+            _repository.Save(dto);
+        }
 
+        public void Handle(PilotAllianceChanged e) {
+            var dto = _repository.Get<PilotDto>(e.Id);
+            dto.AllianceId = e.AllianceId;
+            dto.Timestamp = e.Timestamp;
             _repository.Save(dto);
         }
     }

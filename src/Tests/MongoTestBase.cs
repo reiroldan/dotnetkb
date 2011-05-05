@@ -15,7 +15,7 @@ namespace Tests
     {
 
         private const string ConnectionString = "server=localhost";
-        private const string DataBase = "ReportingRepositoryTest";
+        private const string DataBase = "UT";
         private bool _busRegistered;
 
         protected MongoServer MongoServer { get; private set; }

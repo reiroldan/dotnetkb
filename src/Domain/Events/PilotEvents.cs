@@ -4,6 +4,8 @@ namespace DotNetKillboard.Events
 {
     public class PilotCreated : EventBase
     {
+        public int Sequence { get; set; }
+
         public string Name { get; set; }
 
         public int AllianceId { get; set; }
@@ -14,8 +16,9 @@ namespace DotNetKillboard.Events
 
         public DateTime Timestamp { get; set; }
 
-        public PilotCreated(Guid id, string name, int allianceId, int corporationId, int externalId, DateTime timestamp)
+        public PilotCreated(Guid id, int sequence, string name, int allianceId, int corporationId, int externalId, DateTime timestamp)
             : base(id) {
+            Sequence = sequence;
             Name = name;
             AllianceId = allianceId;
             CorporationId = corporationId;
@@ -33,6 +36,18 @@ namespace DotNetKillboard.Events
         public PilotCorporationChanged(Guid id, int corporationId, DateTime timestamp)
             : base(id) {
             CorporationId = corporationId;
+            Timestamp = timestamp;
+        }
+    }
+
+    public class PilotAllianceChanged : AsyncEventBase
+    {
+        public int AllianceId { get; set; }
+
+        public DateTime Timestamp { get; set; }
+
+        public PilotAllianceChanged(Guid id, int allianceId, DateTime timestamp) : base(id) {
+            AllianceId = allianceId;
             Timestamp = timestamp;
         }
     }

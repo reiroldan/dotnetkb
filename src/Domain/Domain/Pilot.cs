@@ -5,6 +5,7 @@ namespace DotNetKillboard.Domain
 {
     public class Pilot : AggregateRoot
     {
+        private int _sequence;
         private string _name;
         private int _allianceId;
         private int _corporationId;
@@ -13,14 +14,15 @@ namespace DotNetKillboard.Domain
 
         public Pilot() { }
 
-        public Pilot(Guid id, string name, int allianceId, int corporationId, int externalId) {
-            ApplyChange(new PilotCreated(id, name, allianceId, corporationId, externalId, SystemDateTime.Now()));
+        public Pilot(Guid id, int sequence, string name, int allianceId, int corporationId, int externalId) {
+            ApplyChange(new PilotCreated(id, sequence, name, allianceId, corporationId, externalId, SystemDateTime.Now()));
         }
 
         #region Event Handlers
 
         protected void OnPilotCreated(PilotCreated e) {
             Id = e.Id;
+            _sequence = e.Sequence;
             _name = e.Name;
             _allianceId = e.AllianceId;
             _corporationId = e.CorporationId;
@@ -28,8 +30,13 @@ namespace DotNetKillboard.Domain
             _timestamp = e.Timestamp;
         }
 
-        protected void OnPilotAllianceCorporationChanged(PilotCorporationChanged e) {
+        protected void OnPilotCorporationChanged(PilotCorporationChanged e) {
             _corporationId = e.CorporationId;
+            _timestamp = e.Timestamp;
+        }
+
+        protected void OnPilotAllianceChanged(PilotAllianceChanged e) {
+            _allianceId = e.AllianceId;
             _timestamp = e.Timestamp;
         }
 
@@ -42,5 +49,9 @@ namespace DotNetKillboard.Domain
         }
 
         #endregion
+
+        public void ChangeAlliance(int allianceId) {
+            ApplyChange(new PilotAllianceChanged(Id, allianceId, SystemDateTime.Now()));
+        }
     }
 }
