@@ -14,12 +14,12 @@ namespace DotNetKillboard.Domain
         public Corporation() { }
 
         public Corporation(Guid id, int sequence, string name, int allianceId, int externalId) {
-            ApplyChange(new CorporatioCreated(id, sequence, name, allianceId, externalId, SystemDateTime.Now()));
+            ApplyChange(new CorporationCreated(id, sequence, name, allianceId, externalId, SystemDateTime.Now()));
         }
 
         #region Event Handlers
 
-        protected void OnCorporatioCreated(CorporatioCreated e) {
+        protected void OnCorporationCreated(CorporationCreated e) {
             Id = e.Id;
             _sequence = e.Sequence;
             _allianceId = e.AllianceId;

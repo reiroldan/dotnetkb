@@ -157,13 +157,13 @@ namespace Tests
                 _repository = repository;
             }
 
-            public void Handle(TestEntityCreatedEvent @event) {
-                _repository.Save(new TestEntityReport { Id = @event.Id, Name = @event.Name });
+            public void Handle(TestEntityCreatedEvent e) {
+                _repository.Save(new TestEntityReport { Id = e.Id, Name = e.Name });
             }
 
-            public void Handle(TestEntityNameChangedEvent @event) {
-                var r = _repository.Get<TestEntityReport>(@event.Id);
-                r.Name = @event.Name;
+            public void Handle(TestEntityNameChangedEvent e) {
+                var r = _repository.Get<TestEntityReport>(e.Id);
+                r.Name = e.Name;
                 _repository.Save(r);
             }
         }

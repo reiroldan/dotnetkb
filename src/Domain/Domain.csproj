@@ -51,9 +51,10 @@
     <Compile Include="Domain\Kill.cs" />
     <Compile Include="Domain\Pilot.cs" />
     <Compile Include="EventHandlers\AllianceEventHandlers.cs" />
+    <Compile Include="EventHandlers\CorporationEventHandlers.cs" />
     <Compile Include="EventHandlers\PilotEventHandlers.cs" />
     <Compile Include="Events\AllianceEvents.cs" />
-    <Compile Include="Events\CorporatioEvents.cs" />
+    <Compile Include="Events\CorporationEvents.cs" />
     <Compile Include="Events\PilotEvents.cs" />
     <Compile Include="ReportingModel\AllianceDtos.cs" />
     <Compile Include="ReportingModel\CorporationDto.cs" />

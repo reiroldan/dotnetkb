@@ -2,7 +2,7 @@ using System;
 
 namespace DotNetKillboard.Events
 {
-    public class CorporatioCreated : EventBase
+    public class CorporationCreated : EventBase
     {
         public int Sequence { get; set; }
 
@@ -14,11 +14,11 @@ namespace DotNetKillboard.Events
 
         public DateTime Timestamp { get; set; }
 
-        public CorporatioCreated(Guid id)
+        public CorporationCreated(Guid id)
             : base(id) {
         }
 
-        public CorporatioCreated(Guid id, int sequence, string name, int allianceId, int externalId, DateTime timestamp)
+        public CorporationCreated(Guid id, int sequence, string name, int allianceId, int externalId, DateTime timestamp)
             : base(id) {
             Sequence = sequence;
             Name = name;

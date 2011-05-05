@@ -10,7 +10,7 @@ namespace DotNetKillboard.Events
         /// <summary>
         /// Handle the specified event type
         /// </summary>
-        /// <param name="event"></param>
-        void Handle(TEvent @event);
+        /// <param name="e"></param>
+        void Handle(TEvent e);
     }
 }

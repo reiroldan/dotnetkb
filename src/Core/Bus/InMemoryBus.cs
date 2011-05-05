@@ -24,17 +24,17 @@ namespace DotNetKillboard.Bus
 
         public InMemoryBus(IResolver resolver) {
             _resolver = resolver;
-        }       
+        }
 
         public void RegisterEvent(Type eventType, Type eventHandlerType) {
             if (!_eventType.IsAssignableFrom(eventType))
-                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command type.", eventType.Name));
+                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a event type.", eventType.Name));
 
-            if (!_eventHandlerType.IsAssignableFrom(eventHandlerType))
-                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command handler type.", eventHandlerType.Name));
+            if (!eventHandlerType.IsAssignableToGenericType(_eventHandlerType))
+                throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a event handler type.", eventHandlerType.Name));
 
             List<Type> handlers;
-            
+
             if (!_eventRoutes.TryGetValue(eventType, out handlers)) {
                 handlers = new List<Type>();
                 _eventRoutes.Add(eventType, handlers);
@@ -47,7 +47,7 @@ namespace DotNetKillboard.Bus
             if (!_commandType.IsAssignableFrom(commandType))
                 throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command type.", commandType.Name));
 
-            if (!_commandHandlerType.IsAssignableFrom(commandHandlerType))
+            if (!commandHandlerType.IsAssignableToGenericType(_commandHandlerType))
                 throw new InvalidOperationException(string.Format("Cannot register type {0} as its not a command handler type.", commandHandlerType.Name));
 
             if (_commandRoutes.ContainsKey(commandType))
@@ -77,16 +77,24 @@ namespace DotNetKillboard.Bus
         public void Publish<T>(T @event) where T : IEvent {
             List<Type> handlers;
 
+            var genEvtType = _eventHandlerType.MakeGenericType(@event.GetType());
+            var genMethod = genEvtType.GetMethod("Handle");
+
             if (!_eventRoutes.TryGetValue(@event.GetType(), out handlers))
                 return;
 
             foreach (var handlerType in handlers) {
-                var handler = (IEventHandler<T>)_resolver.TryResolve(handlerType);
+                var handler = _resolver.TryResolve(handlerType);
+
+                if (handler == null)
+                    throw new Exception(string.Format("Could not resolve handler of type {0}", handlerType.Name));
+
+                Action action = () => genMethod.Invoke(handler, new object[] { @event });
 
                 if (@event.Async)
-                    ThreadPool.QueueUserWorkItem(x => handler.Handle(@event));
+                    ThreadPool.QueueUserWorkItem(x => action());
                 else {
-                    handler.Handle(@event);
+                    action();                    
                 }
             }
         }

@@ -50,9 +50,9 @@ namespace DotNetKillboard.Domain
         public void ApplyChange(IEvent @event, bool isNew = true) {
             var targetType = GetType();
             var methodsToMatch = targetType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var expectedName = string.Format("On{0}", @event.GetType().Name);
 
             foreach (var method in methodsToMatch) {
-                var expectedName = string.Format("on{0}", @event.GetType().Name);
 
                 if (string.Compare(method.Name, expectedName, StringComparison.OrdinalIgnoreCase) != 0)
                     continue;
@@ -69,6 +69,8 @@ namespace DotNetKillboard.Domain
 
                 return;
             }
+
+            throw new Exception(string.Format("Could not find a method named {0} on type {1}", expectedName, GetType().Name));
         }
     }
 }

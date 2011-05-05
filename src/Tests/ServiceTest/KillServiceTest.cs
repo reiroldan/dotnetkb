@@ -1,5 +1,5 @@
 using System;
-using DotNetKillboard.Data;
+using DotNetKillboard.ReportingModel;
 using DotNetKillboard.Services;
 using DotNetKillboard.Services.Implementation;
 using DotNetKillboard.Services.Model;
@@ -15,19 +15,17 @@ namespace Tests.ServiceTest
             RegisterBus()
                 .RegisterReportingRepository()
                 .RegisterEntitiesServices()
-                .RegisterFilters();
+                .RegisterFilters()
+                .RegisterCommandsAndEvents();
 
             Resolver.Container.Register<IKillService, KillServiceImpl>();
-
-            var filters = FilterHelper.GetFilterTypes();
-
-            foreach (var f in filters) {
-                Resolver.Container.Register(f.Key, f.Value);
-            }
         }
 
         [Test]
         public void Test1() {
+            var system = new SolarSystemDto { Id = 1, Name = "SystemName" };
+            Save(system);
+
             var kill = new ParsedKillResult {
                 Header = new ParsedKillHeader {
                     AllianceName = "VictimAlliance",
@@ -35,7 +33,7 @@ namespace Tests.ServiceTest
                     DamageTaken = 100,
                     FactionName = "FactionName",
                     ShipName = "VictimShip",
-                    SystemName = "SystemName",
+                    SystemName = system.Name,
                     SystemSecurity = 9000,
                     Timestamp = DateTime.Now,
                     VictimName = "VictimPilot"
@@ -44,7 +42,7 @@ namespace Tests.ServiceTest
 
             var ks = Resolve<IKillService>();
             ks.CreateKill(kill);
-        }      
+        }
 
     }
 }

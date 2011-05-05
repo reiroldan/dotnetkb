@@ -12,23 +12,23 @@ namespace DotNetKillboard.EventHandlers
             _repository = repository;
         }
 
-        public void Handle(PilotCreated @event) {
+        public void Handle(PilotCreated e) {
             var dto = new PilotDto {
-                Id = @event.Id,
-                AllianceId = @event.AllianceId,
-                CorporationId = @event.CorporationId,
-                ExternalId = @event.ExternalId,
-                Name = @event.Name,
-                Timestamp = @event.Timestamp,
+                Id = e.Id,
+                AllianceId = e.AllianceId,
+                CorporationId = e.CorporationId,
+                ExternalId = e.ExternalId,
+                Name = e.Name,
+                Timestamp = e.Timestamp,
             };
 
             _repository.Save(dto);
         }
 
-        public void Handle(PilotCorporationChanged @event) {
-            var dto = _repository.Get<PilotDto>(@event.Id);
-            dto.CorporationId = @event.CorporationId;
-            dto.Timestamp = @event.Timestamp;
+        public void Handle(PilotCorporationChanged e) {
+            var dto = _repository.Get<PilotDto>(e.Id);
+            dto.CorporationId = e.CorporationId;
+            dto.Timestamp = e.Timestamp;
 
             _repository.Save(dto);
         }

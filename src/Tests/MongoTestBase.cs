@@ -2,6 +2,7 @@ using System;
 using DotNetKillboard;
 using DotNetKillboard.Bus;
 using DotNetKillboard.Data;
+using DotNetKillboard.Events;
 using DotNetKillboard.Reporting;
 using DotNetKillboard.Services;
 using DotNetKillboard.Services.Implementation;
@@ -44,6 +45,9 @@ namespace Tests
             _busRegistered = true;
             Resolver.Container.Register<IResolver>(Resolver);
             Resolver.Container.Register<IBus, InMemoryBus>();
+            Resolver.Container.Register<IEventStore>(new MongoEventStore(Resolver.Resolve<IBus>(), ConnectionString,
+                                                                         DataBase));
+            Resolver.Container.Register<IDomainRepository, DomainRepositoryImpl>();
             return this;
         }
 
@@ -70,9 +74,40 @@ namespace Tests
             return this;
         }
 
+        public MongoTestBase RegisterCommandsAndEvents() {
+            var commands = CommandEventConfigHelper.GetCommandAndHandlerTypes();
+            var events = CommandEventConfigHelper.GetEventAndHandlerTypes();
+            var bus = Resolver.Resolve<IBus>();
+
+            foreach (var pair in commands) {
+                bus.RegisterCommand(pair.Key, pair.Value);
+            }
+
+            foreach (var pair in events) {
+                foreach (var e in pair.Value) {
+                    bus.RegisterEvent(pair.Key, e);
+                }
+            }
+
+            return this;
+        }
+
+        #region Helpers
+
         protected T Resolve<T>() where T : class {
             return Resolver.Container.Resolve<T>();
         }
-       
+
+        protected void Save<T>(T obj) {
+            GetCollection<T>().Save(obj);
+        }
+
+        protected MongoCollection<T> GetCollection<T>() {
+            var collection = MongoServer.GetDatabase(DataBase).GetCollection<T>(
+               CollectionNamesFactory.GetCollectionNameFromType<T>());
+            return collection;
+        }
+
+        #endregion
     }
 }
