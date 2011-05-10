@@ -66,15 +66,13 @@ namespace DotNetKillboard.Services.Implementation
                     party.DamageDone,
                     party.SecurityStatus,
                     party.FinalBlow,
-                    new KillIdSeqNameParameter(partyAlliance.Id, partyAlliance.Sequence, partyAlliance.Name),
-                    new KillIdSeqNameParameter(partyCorp.Id, partyCorp.Sequence, partyCorp.Name),
-                    new KillIdSeqNameParameter(partyPilot.Id, partyPilot.Sequence, partyPilot.Name),
-                    new KillSimpleItemParameter(partyShip.Id, partyShip.Name),
-                    new KillSimpleItemParameter(partyWeapon.Id, partyWeapon.Name)
-                    );
+                    partyAlliance.Sequence,
+                    partyCorp.Sequence,
+                    partyPilot.Sequence,
+                    partyShip.Id,
+                    partyWeapon.Id);
 
                 involvedKillsPoints += partyShip.Points;
-
                 involvedParty.Add(partyParam);
             }
 
@@ -89,8 +87,10 @@ namespace DotNetKillboard.Services.Implementation
 
                 var location = 0;
                 //TODO: Get location
-                destroyedItems.Add(new KillItemParameter(destroyedItem.Id, destroyedItem.Name, item.Quantity, location));
+                destroyedItems.Add(new KillItemParameter(destroyedItem.Id, item.Quantity, location));
             }
+
+            var droppedItems = new List<KillItemParameter>();
 
             foreach (var item in kill.DroppedItems) {
                 if (item.Name.Contains("Blueprint")) // Ignore blueprints
@@ -98,10 +98,20 @@ namespace DotNetKillboard.Services.Implementation
 
                 var droppedItem = involvedItemDic[item.Name];
                 victimIskLoss += droppedItem.GetPrice() * item.Quantity;
+                var location = 0;
+                //TODO: Get location
+                droppedItems.Add(new KillItemParameter(droppedItem.Id, item.Quantity, location));
             }
 
-            // Calculate kill points
+            // Calculate kill points            
+            if (victimKillPoints == 0)
+                victimKillPoints = 1;
+
             var killGankfactor = victimKillPoints / (victimKillPoints + involvedKillsPoints);
+
+            if (killGankfactor == 0)
+                killGankfactor = 1;
+
             var killPoints = Math.Ceiling(victimKillPoints * (killGankfactor / 0.75));
 
             if (killPoints > maxKillPoints)
@@ -117,12 +127,18 @@ namespace DotNetKillboard.Services.Implementation
                     killDate,
                     kill.Header.DamageTaken,
                     Convert.ToInt32(killPoints),
-                    new KillSimpleItemParameter(victimShip.Id, victimShip.Name),
-                    new KillSystemParameter(victimSystem.Id, victimSystem.Name),
-                    new KillIdSeqNameParameter(victimAlliance.Id, victimAlliance.Sequence, victimAlliance.Name),
-                    new KillIdSeqNameParameter(victimCorp.Id, victimCorp.Sequence, victimCorp.Name),
-                    new KillIdSeqNameParameter(victimPilot.Id, victimPilot.Sequence, victimPilot.Name)
+                    victimIskLoss,
+                    victimShip.Id,
+                    victimSystem.Id,
+                    victimAlliance.Sequence,
+                    victimCorp.Sequence,
+                    victimPilot.Sequence,
+                    involvedParty,
+                    destroyedItems,
+                    droppedItems
                 );
+
+            _bus.Send(createKillCommand);
         }
 
         #region Helpers

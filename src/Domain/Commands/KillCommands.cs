@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace DotNetKillboard.Commands
 {
@@ -34,34 +35,32 @@ namespace DotNetKillboard.Commands
         public decimal DamageDone { get; set; }
         public decimal SecurityStatus { get; set; }
         public bool FinalBlow { get; set; }
-        public KillIdSeqNameParameter Alliance { get; set; }
-        public KillIdSeqNameParameter Corp { get; set; }
-        public KillIdSeqNameParameter Pilot { get; set; }
-        public KillSimpleItemParameter Ship { get; set; }
-        public KillSimpleItemParameter Weapon { get; set; }
+        public int AllianceId { get; set; }
+        public int CorpId { get; set; }
+        public int PilotId { get; set; }
+        public int ShipId { get; set; }
+        public int WeaponId { get; set; }
 
-        public KillPartyParameter(decimal damageDone, decimal securityStatus, bool finalBlow, KillIdSeqNameParameter alliance, KillIdSeqNameParameter corp, KillIdSeqNameParameter pilot, KillSimpleItemParameter ship, KillSimpleItemParameter weapon) {
+        public KillPartyParameter(decimal damageDone, decimal securityStatus, bool finalBlow, int allianceId, int corpId, int pilotId, int shipId, int weaponId) {
             DamageDone = damageDone;
             SecurityStatus = securityStatus;
             FinalBlow = finalBlow;
-            Alliance = alliance;
-            Corp = corp;
-            Pilot = pilot;
-            Ship = ship;
-            Weapon = weapon;
+            AllianceId = allianceId;
+            CorpId = corpId;
+            PilotId = pilotId;
+            ShipId = shipId;
+            WeaponId = weaponId;
         }
     }
 
     public class KillItemParameter
     {
         public int Id { get; set; }
-        public string Name { get; set; }
         public int Quantity { get; set; }
         public int Location { get; set; }
 
-        public KillItemParameter(int id, string name, int quantity, int location) {
+        public KillItemParameter(int id, int quantity, int location) {
             Id = id;
-            Name = name;
             Quantity = quantity;
             Location = location;
         }
@@ -82,33 +81,47 @@ namespace DotNetKillboard.Commands
     {
         public int Sequence { get; set; }
 
-        public DateTime Timestamp { get; set; }
+        public DateTime KillDate { get; set; }
 
         public decimal DamageTaken { get; set; }
 
         public int KillPoints { get; set; }
 
-        public KillSimpleItemParameter Ship { get; set; }
+        public decimal IskLoss { get; set; }
 
-        public KillSystemParameter System { get; set; }
+        public int ShipId { get; set; }
 
-        public KillIdSeqNameParameter Alliance { get; set; }
+        public int SystemId { get; set; }
 
-        public KillIdSeqNameParameter Corp { get; set; }
+        public int AllianceId { get; set; }
 
-        public KillIdSeqNameParameter Pilot { get; set; }
+        public int CorpId { get; set; }
 
-        public CreateKill(Guid id, int sequence, DateTime timestamp, decimal damageTaken, int killPoints, KillSimpleItemParameter ship, KillSystemParameter system, KillIdSeqNameParameter alliance, KillIdSeqNameParameter corp, KillIdSeqNameParameter pilot)
+        public int PilotId { get; set; }
+
+        public IEnumerable<KillPartyParameter> InvolvedParties { get; set; }
+
+        public IEnumerable<KillItemParameter> DestroyedItems { get; set; }
+
+        public IEnumerable<KillItemParameter> DroppedItems { get; set; }
+
+        public CreateKill(Guid id, int sequence, DateTime killDate, decimal damageTaken, int killPoints, decimal iskLoss,
+            int shipId, int systemId, int allianceId, int corpId, int pilotId,
+            IEnumerable<KillPartyParameter> involvedParties, IEnumerable<KillItemParameter> destroyedItems, IEnumerable<KillItemParameter> droppedItems)
             : base(id) {
             Sequence = sequence;
-            Timestamp = timestamp;
+            KillDate = killDate;
             DamageTaken = damageTaken;
             KillPoints = killPoints;
-            Ship = ship;
-            System = system;
-            Alliance = alliance;
-            Corp = corp;
-            Pilot = pilot;
+            IskLoss = iskLoss;
+            ShipId = shipId;
+            SystemId = systemId;
+            AllianceId = allianceId;
+            CorpId = corpId;
+            PilotId = pilotId;
+            InvolvedParties = involvedParties;
+            DestroyedItems = destroyedItems;
+            DroppedItems = droppedItems;
         }
     }
 }
