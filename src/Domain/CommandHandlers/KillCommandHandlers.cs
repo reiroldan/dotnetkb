@@ -17,6 +17,10 @@ namespace DotNetKillboard.CommandHandlers
                 command.ShipId, command.DamageTaken,
                 command.KillPoints, command.IskLoss, command.AllianceId, command.CorpId, command.PilotId);
 
+            _repository.Save(kill);
+
+            kill = _repository.GetById<Kill>(command.Id);
+
             foreach (var party in command.InvolvedParties) {
                 kill.AddParty(party.AllianceId, party.CorpId, party.PilotId, party.DamageDone, party.ShipId, party.WeaponId, party.SecurityStatus, party.FinalBlow);
             }

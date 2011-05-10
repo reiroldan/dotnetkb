@@ -228,5 +228,12 @@ Hydra F.O.F. Heavy Missile I, Qty: 617 (Cargo)
             ks.CreateKill(kill);
         }
 
+        [Test]
+        public void MultiRun() {
+            for (var i = 0; i < 1000; i++) {
+                FullTest();
+            }
+        }
+
     }
 }

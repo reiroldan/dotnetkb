@@ -33,7 +33,7 @@ namespace DotNetKillboard.Events
         }
     }
 
-    public class KillPartyAdded : EventBase
+    public class KillPartyAdded : AsyncEventBase
     {
         public int AllianceId { get; set; }
         public int CorpId { get; set; }
@@ -59,7 +59,7 @@ namespace DotNetKillboard.Events
         }
     }
 
-    public class KillDroppedItemAdded : EventBase
+    public class KillDroppedItemAdded : AsyncEventBase
     {
         public int ItemId { get; set; }
         public int Quantity { get; set; }
@@ -75,7 +75,7 @@ namespace DotNetKillboard.Events
         }
     }
 
-    public class KillDestroyedItemAdded : EventBase
+    public class KillDestroyedItemAdded : AsyncEventBase
     {
         public int ItemId { get; set; }
         public int Quantity { get; set; }
