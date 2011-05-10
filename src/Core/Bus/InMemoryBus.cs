@@ -52,7 +52,7 @@ namespace DotNetKillboard.Bus
 
             if (_commandRoutes.ContainsKey(commandType))
                 throw new InvalidOperationException(
-                    string.Format("There is already a handler registered for command type {0}.", commandType));
+                    string.Format("There is already a command handler registered for command type {0}.", commandType));
 
             _commandRoutes.Add(commandType, commandHandlerType);
         }
@@ -71,7 +71,7 @@ namespace DotNetKillboard.Bus
                 }
             }
 
-            throw new InvalidOperationException(string.Format("no handler registered for {0}", command.GetType()));
+            throw new InvalidOperationException(string.Format("Could not resolve command handler for {0}", command.GetType()));
         }
 
         public void Publish<T>(T @event) where T : IEvent {
@@ -87,7 +87,7 @@ namespace DotNetKillboard.Bus
                 var handler = _resolver.TryResolve(handlerType);
 
                 if (handler == null)
-                    throw new Exception(string.Format("Could not resolve handler of type {0}", handlerType.Name));
+                    throw new Exception(string.Format("Could not resolve event handler of type {0}", handlerType.Name));
 
                 Action action = () => genMethod.Invoke(handler, new object[] { @event });
 
